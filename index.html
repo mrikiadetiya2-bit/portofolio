@@ -56,51 +56,197 @@
       }
 
       /* ==========================================================================
-         FLOATING SECTION SWITCHER (TOP NAVIGATION PILL)
+         LIQUID GLASS NAVBAR (HOME, PROJECT, ABOUT, CONTACT)
          ========================================================================== */
-      .section-switcher {
+      .liquid-navbar-header {
         position: fixed;
-        top: 18px;
+        top: 22px;
         left: 50%;
         transform: translateX(-50%);
-        z-index: 90;
-        display: inline-flex;
+        z-index: 95;
+        pointer-events: none;
+        display: flex;
         align-items: center;
-        gap: 4px;
-        padding: 4px;
-        border-radius: 8px;
-        background: rgba(18, 19, 24, 0.84);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        justify-content: center;
       }
 
-      .section-nav-btn {
+      .liquid-glass-nav {
+        --mouse-x: 50%;
+        --mouse-y: 50%;
+        pointer-events: auto;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 8px;
+        border-radius: 999px;
+        isolation: isolate;
+        box-shadow:
+          0 16px 38px -8px rgba(15, 18, 28, 0.16),
+          0 4px 12px rgba(15, 18, 28, 0.07),
+          0 0 0 1px rgba(255, 255, 255, 0.52);
+        transition:
+          transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+          box-shadow 0.35s ease;
+      }
+
+      .liquid-glass-nav:hover {
+        box-shadow:
+          0 20px 44px -6px rgba(15, 18, 28, 0.22),
+          0 6px 16px rgba(15, 18, 28, 0.1),
+          0 0 0 1px rgba(255, 255, 255, 0.72);
+      }
+
+      /* Layer 1: Optical Refraction + Backdrop Blur */
+      .liquid-glass-backdrop {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        z-index: -3;
+        backdrop-filter: url(#liquid-glass-refraction) blur(18px) saturate(190%)
+          brightness(1.04);
+        -webkit-backdrop-filter: blur(20px) saturate(190%) brightness(1.04);
+        overflow: hidden;
+      }
+
+      /* Layer 2: Prismatic Liquid Surface Tint + Cursor Specular Glow */
+      .liquid-glass-tint {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        z-index: -2;
+        background:
+          radial-gradient(
+            130px circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.65) 0%,
+            rgba(255, 255, 255, 0) 100%
+          ),
+          linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.56) 0%,
+            rgba(255, 255, 255, 0.22) 48%,
+            rgba(240, 246, 255, 0.42) 100%
+          );
+        transition: background 0.35s ease;
+      }
+
+      /* Layer 3: 3D Curved Fresnel Rim & Specular Edge Highlights */
+      .liquid-glass-shine {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        z-index: -1;
+        pointer-events: none;
+        box-shadow:
+          inset 0 1.5px 1.5px rgba(255, 255, 255, 0.92),
+          inset 0 -1.5px 2px rgba(255, 255, 255, 0.42),
+          inset 1.5px 0 2px rgba(255, 255, 255, 0.55),
+          inset -1.5px 0 2px rgba(255, 255, 255, 0.55);
+      }
+
+      /* Morphing 3D Liquid Droplet Active Pill */
+      .liquid-nav-droplet {
+        position: absolute;
+        top: 7px;
+        left: 0;
+        height: calc(100% - 14px);
+        border-radius: 999px;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(
+            110% 95% at 50% 14%,
+            rgba(255, 255, 255, 0.92) 0%,
+            rgba(255, 255, 255, 0.38) 56%,
+            rgba(245, 248, 255, 0.68) 100%
+          );
+        box-shadow:
+          0 6px 16px -2px rgba(14, 18, 26, 0.14),
+          0 2px 5px rgba(14, 18, 26, 0.08),
+          inset 0 1.5px 1px rgba(255, 255, 255, 1),
+          inset 0 -1.5px 2px rgba(18, 22, 32, 0.08);
+        will-change: transform, width;
+      }
+
+      .liquid-nav-list {
+        position: relative;
+        z-index: 1;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .liquid-nav-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .liquid-nav-link {
         appearance: none;
         background: transparent;
         border: none;
-        color: rgba(255, 255, 255, 0.68);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.7rem;
-        font-weight: 500;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 7px 13px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: color 0.2s ease, background 0.2s ease;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 22px;
+        border-radius: 999px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: rgba(17, 19, 24, 0.66);
         text-decoration: none;
+        cursor: pointer;
+        transition:
+          color 0.25s ease,
+          transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
       }
 
-      .section-nav-btn:hover {
+      .liquid-nav-link:hover {
+        color: #0d0f14;
+      }
+
+      .liquid-nav-link.active {
+        color: #0b0d12;
+        font-weight: 700;
+      }
+
+      /* Adaptive Dark Glass Mode when over dark sections (#lumina-section) */
+      .liquid-glass-nav.on-dark {
+        box-shadow:
+          0 18px 42px -6px rgba(0, 0, 0, 0.55),
+          0 0 0 1px rgba(255, 255, 255, 0.22);
+      }
+
+      .liquid-glass-nav.on-dark .liquid-glass-tint {
+        background:
+          radial-gradient(
+            130px circle at var(--mouse-x) var(--mouse-y),
+            rgba(255, 255, 255, 0.26) 0%,
+            rgba(255, 255, 255, 0) 100%
+          ),
+          linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.18) 0%,
+            rgba(255, 255, 255, 0.06) 50%,
+            rgba(255, 255, 255, 0.14) 100%
+          );
+      }
+
+      .liquid-glass-nav.on-dark .liquid-nav-link {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .liquid-glass-nav.on-dark .liquid-nav-link:hover {
         color: #ffffff;
       }
 
-      .section-nav-btn.active {
-        background: #ffffff;
-        color: #0e1015;
-        font-weight: 600;
+      .liquid-glass-nav.on-dark .liquid-nav-link.active {
+        color: #0d0f14;
       }
 
       /* ==========================================================================
@@ -1030,23 +1176,97 @@
     </style>
   </head>
   <body>
-    <!-- Top Section Switcher -->
-    <nav class="section-switcher" aria-label="Section Navigation">
-      <a
-        href="#portfolio-section"
-        class="section-nav-btn active"
-        id="nav-portfolio-btn"
+    <!-- SVG Optical Filter for Liquid Glass Refraction -->
+    <svg
+       style="position: absolute; width: 0; height: 0; pointer-events: none"
+      aria-hidden="true"
+    >
+      <defs>
+        <filter
+          id="liquid-glass-refraction"
+          x="-20%"
+          y="-20%"
+          width="140%"
+          height="140%"
+          color-interpolation-filters="sRGB"
+        >
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.014 0.028"
+            numOctaves="2"
+            seed="7"
+            result="noise"
+          />
+          <feGaussianBlur in="noise" stdDeviation="1.8" result="smoothNoise" />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="smoothNoise"
+            scale="11"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Liquid Glass Navbar (Home, Project, About, Contact) -->
+    <header class="liquid-navbar-header">
+      <nav
+        class="liquid-glass-nav"
+        id="liquid-glass-nav"
+        aria-label="Main Liquid Glass Navigation"
       >
-        01 · Device Mockup Showcase
-      </a>
-      <a
-        href="#lumina-section"
-        class="section-nav-btn"
-        id="nav-lumina-btn"
-      >
-        02 · Lumina Lens Slider
-      </a>
-    </nav>
+        <div class="liquid-glass-backdrop" aria-hidden="true"></div>
+        <div class="liquid-glass-tint" aria-hidden="true"></div>
+        <div class="liquid-glass-shine" aria-hidden="true"></div>
+
+        <!-- Animated 3D Liquid Droplet Active Indicator -->
+        <div
+          class="liquid-nav-droplet"
+          id="liquid-nav-droplet"
+          aria-hidden="true"
+        ></div>
+
+        <ul class="liquid-nav-list" id="liquid-nav-list">
+          <li class="liquid-nav-item">
+            <a
+              href="#portfolio-section"
+              class="liquid-nav-link active"
+              data-nav="home"
+            >
+              Home
+            </a>
+          </li>
+          <li class="liquid-nav-item">
+            <a
+              href="#portfolio-section"
+              class="liquid-nav-link"
+              data-nav="project"
+            >
+              Project
+            </a>
+          </li>
+          <li class="liquid-nav-item">
+            <a
+              href="#lumina-section"
+              class="liquid-nav-link"
+              data-nav="about"
+            >
+              About
+            </a>
+          </li>
+          <li class="liquid-nav-item">
+            <a
+              href="#lumina-section"
+              class="liquid-nav-link"
+              data-nav="contact"
+            >
+              Contact
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </header>
 
     <!-- ========================================================================
          SECTION 1 (TOP PAGE): CONTINUOUS 3D ORBITAL WHEEL SCROLL/DRAG (VIDEO 2)
@@ -2360,21 +2580,120 @@
           }
         });
 
-        // Update Top Navigation Active State on Scroll
-        const navPortfolioBtn = document.getElementById('nav-portfolio-btn');
-        const navLuminaBtn = document.getElementById('nav-lumina-btn');
+        // ============================================================================
+        // LIQUID GLASS NAVBAR INTERACTION (DROPLET MORPH + SPECULAR TRACKING)
+        // ============================================================================
+        const liquidNavEl = document.getElementById('liquid-glass-nav');
+        const liquidDropletEl = document.getElementById('liquid-nav-droplet');
+        const liquidNavLinks = Array.from(
+          document.querySelectorAll('.liquid-nav-link')
+        );
+
+        function moveLiquidDroplet(targetLink, animate) {
+          if (!targetLink || !liquidDropletEl) return;
+          const navRect = liquidNavEl.getBoundingClientRect();
+          const linkRect = targetLink.getBoundingClientRect();
+          const targetX = linkRect.left - navRect.left;
+          const targetW = linkRect.width;
+
+          liquidNavLinks.forEach(function (link) {
+            link.classList.toggle('active', link === targetLink);
+          });
+
+          if (!animate) {
+            gsap.set(liquidDropletEl, {
+              x: targetX,
+              width: targetW,
+              scaleX: 1,
+              scaleY: 1,
+            });
+            return;
+          }
+
+          // Liquid stretch & squish physics during movement
+          gsap.killTweensOf(liquidDropletEl);
+          const tl = gsap.timeline();
+          tl.to(
+            liquidDropletEl,
+            {
+              scaleX: 1.16,
+              scaleY: 0.88,
+              duration: 0.16,
+              ease: 'power2.out',
+            },
+            0
+          );
+          tl.to(
+            liquidDropletEl,
+            {
+              x: targetX,
+              width: targetW,
+              duration: 0.52,
+              ease: 'elastic.out(1, 0.72)',
+            },
+            0
+          );
+          tl.to(
+            liquidDropletEl,
+            {
+              scaleX: 1,
+              scaleY: 1,
+              duration: 0.38,
+              ease: 'elastic.out(1.1, 0.55)',
+            },
+            0.14
+          );
+        }
+
+        // Initialize droplet position on active link ("Home")
+        requestAnimationFrame(function () {
+          const initialActive =
+            document.querySelector('.liquid-nav-link.active') ||
+            liquidNavLinks[0];
+          moveLiquidDroplet(initialActive, false);
+        });
+
+        liquidNavLinks.forEach(function (link) {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            moveLiquidDroplet(link, true);
+            const targetId = link.getAttribute('href');
+            if (targetId && targetId.startsWith('#')) {
+              const targetSection = document.querySelector(targetId);
+              if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }
+          });
+        });
+
+        // Track cursor position inside the Liquid Glass Navbar for real-time specular reflection
+        liquidNavEl.addEventListener('pointermove', function (e) {
+          const rect = liquidNavEl.getBoundingClientRect();
+          const mx = ((e.clientX - rect.left) / rect.width) * 100;
+          const my = ((e.clientY - rect.top) / rect.height) * 100;
+          liquidNavEl.style.setProperty('--mouse-x', mx.toFixed(1) + '%');
+          liquidNavEl.style.setProperty('--mouse-y', my.toFixed(1) + '%');
+        });
+
         window.addEventListener(
           'scroll',
           function () {
             const luminaRect = document
               .getElementById('lumina-section')
               .getBoundingClientRect();
-            const isLuminaActive = luminaRect.top < window.innerHeight * 0.5;
-            navPortfolioBtn.classList.toggle('active', !isLuminaActive);
-            navLuminaBtn.classList.toggle('active', isLuminaActive);
+            const isLuminaActive = luminaRect.top < window.innerHeight * 0.45;
+            liquidNavEl.classList.toggle('on-dark', isLuminaActive);
           },
           { passive: true }
         );
+
+        window.addEventListener('resize', function () {
+          const currentActive =
+            document.querySelector('.liquid-nav-link.active') ||
+            liquidNavLinks[0];
+          moveLiquidDroplet(currentActive, false);
+        });
 
         // Responsive Window Resize
         function handleResize() {
