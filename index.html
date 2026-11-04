@@ -1,0 +1,1302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumina & Rose Mirage — WebGL Spherical Lens Slider</title>
+    <meta
+      name="description"
+      content="Interactive WebGL image slider featuring custom GLSL spherical bulge refraction, rainbow prism chromatic aberration, and synchronized GSAP blur-fade typography."
+    />
+    <meta property="og:title" content="Lumina & Rose Mirage — WebGL Spherical Lens Slider" />
+    <meta
+      property="og:description"
+      content="Interactive WebGL image slider featuring custom GLSL spherical bulge refraction, rainbow prism chromatic aberration, and synchronized GSAP blur-fade typography."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts: Luxury Editorial Serif + Clean Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Three.js & GSAP via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #08090f;
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        user-select: none;
+      }
+
+      /* Fullscreen WebGL Canvas Container */
+      #webgl-container {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+        cursor: pointer;
+      }
+
+      #webgl-container canvas {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* Subtle Bottom Readability Gradient Scrim */
+      .vignette-scrim {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.52) 0%,
+          rgba(0, 0, 0, 0.18) 28%,
+          rgba(0, 0, 0, 0) 60%
+        );
+      }
+
+      /* Main Editorial UI Overlay */
+      .slider-ui {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: clamp(28px, 4.5vw, 64px) clamp(28px, 4.5vw, 68px);
+      }
+
+      /* Left Content Block */
+      .slide-content {
+        max-width: 540px;
+        margin-bottom: clamp(32px, 4.5vh, 48px);
+        will-change: transform, opacity, filter;
+      }
+
+      .slide-title {
+        font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+        font-weight: 400;
+        font-size: clamp(2.75rem, 4.4vw, 4.15rem);
+        line-height: 1.08;
+        letter-spacing: -0.01em;
+        color: #ffffff;
+        margin-bottom: 14px;
+        text-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+        will-change: transform, opacity, filter;
+      }
+
+      .slide-desc {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 400;
+        font-size: clamp(0.875rem, 1.02vw, 0.98rem);
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.84);
+        letter-spacing: 0.01em;
+        margin-bottom: clamp(26px, 3.6vh, 38px);
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+        will-change: transform, opacity, filter;
+      }
+
+      .shop-now-btn {
+        pointer-events: auto;
+        display: inline-block;
+        background: transparent;
+        border: none;
+        border-bottom: 1.5px solid rgba(255, 255, 255, 0.88);
+        padding: 4px 0 7px 0;
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        will-change: transform, opacity, filter;
+      }
+
+      .shop-now-btn:hover,
+      .shop-now-btn:focus-visible {
+        opacity: 0.8;
+        border-bottom-color: #ffffff;
+        transform: translateY(-1px);
+        outline: none;
+      }
+
+      /* Bottom Row: Progress Indicator Line (Left) + Page Number (Right) */
+      .slider-bottom-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .progress-track {
+        position: relative;
+        width: 96px;
+        height: 1.5px;
+        background: rgba(255, 255, 255, 0.24);
+        overflow: hidden;
+        pointer-events: auto;
+        cursor: pointer;
+      }
+
+      .progress-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+        background: #ffffff;
+        will-change: transform;
+      }
+
+      .page-indicator {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.74rem;
+        letter-spacing: 0.16em;
+        font-variant-numeric: tabular-nums;
+        color: rgba(255, 255, 255, 0.45);
+        will-change: opacity, filter;
+      }
+
+      .page-indicator .current-page {
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      /* Discreet / Hidden Top-Right Local Image Switcher & Drag-and-Drop */
+      .top-right-tools {
+        position: fixed;
+        top: 20px;
+        right: 24px;
+        z-index: 30;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .tools-trigger {
+        pointer-events: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 6px;
+        background: rgba(12, 14, 22, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.75);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        opacity: 0.28;
+        transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      }
+
+      .top-right-tools:hover .tools-trigger,
+      .tools-trigger:focus-visible,
+      .tools-trigger[aria-expanded='true'] {
+        opacity: 1;
+        background: rgba(12, 14, 22, 0.88);
+        border-color: rgba(255, 255, 255, 0.28);
+        color: #ffffff;
+        outline: none;
+      }
+
+      .tools-panel {
+        pointer-events: auto;
+        margin-top: 8px;
+        width: 280px;
+        padding: 14px;
+        border-radius: 10px;
+        background: rgba(12, 14, 22, 0.94);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .tools-panel.open {
+        display: flex;
+      }
+
+      .tools-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #ffffff;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .drop-slot {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 11px;
+        border-radius: 7px;
+        border: 1px dashed rgba(255, 255, 255, 0.24);
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.82);
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+
+      .drop-slot:hover,
+      .drop-slot.drag-over {
+        border-color: rgba(255, 255, 255, 0.75);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .drop-slot input[type='file'] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .drop-slot-meta {
+        font-size: 0.66rem;
+        color: rgba(255, 255, 255, 0.48);
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .tools-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 2px;
+      }
+
+      .tool-action-btn {
+        flex: 1;
+        padding: 7px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .tool-action-btn:hover {
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.35);
+      }
+
+      .tools-hint {
+        font-size: 0.65rem;
+        line-height: 1.4;
+        color: rgba(255, 255, 255, 0.45);
+      }
+
+      /* Full-Window Drag-and-Drop Banner */
+      .window-drop-indicator {
+        position: fixed;
+        inset: 16px;
+        z-index: 50;
+        pointer-events: none;
+        border: 2px dashed rgba(255, 255, 255, 0.65);
+        border-radius: 14px;
+        background: rgba(8, 9, 15, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .window-drop-indicator.active {
+        opacity: 1;
+      }
+
+      .window-drop-indicator span {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: #ffffff;
+        letter-spacing: 0.02em;
+      }
+
+      /* Minimal Product Showcase Modal when clicking SHOP NOW */
+      .product-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        background: rgba(6, 7, 12, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .product-modal-backdrop.open {
+        display: flex;
+      }
+
+      .product-modal {
+        width: 100%;
+        max-width: 440px;
+        background: #10121a;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 12px;
+        padding: 28px;
+        color: #ffffff;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      }
+
+      .product-modal-kicker {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 6px;
+      }
+
+      .product-modal-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.85rem;
+        font-weight: 400;
+        margin-bottom: 10px;
+      }
+
+      .product-modal-desc {
+        font-size: 0.86rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.75);
+        margin-bottom: 20px;
+      }
+
+      .product-modal-meta {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.8rem;
+        margin-bottom: 22px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .product-modal-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn-primary {
+        flex: 1;
+        padding: 11px 16px;
+        border-radius: 6px;
+        border: none;
+        background: #ffffff;
+        color: #090a10;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .btn-secondary {
+        padding: 11px 16px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: transparent;
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      @media (max-width: 640px) {
+        .slider-ui {
+          padding: 24px 22px;
+        }
+        .slide-content {
+          margin-bottom: 28px;
+        }
+        .slide-title {
+          font-size: 2.35rem;
+        }
+      }
+    </style>
+  </head>
+  <body data-slide="0" data-transitioning="false">
+    <!-- WebGL Interactive Canvas -->
+    <div
+      id="webgl-container"
+      data-testid="webgl-slider-canvas"
+      role="button"
+      tabindex="0"
+      aria-label="Next slide transition"
+    ></div>
+
+    <!-- Subtle contrast scrim for bottom typography -->
+    <div class="vignette-scrim" aria-hidden="true"></div>
+
+    <!-- Editorial Overlay UI (Synced via GSAP) -->
+    <main class="slider-ui">
+      <div class="slide-content" id="slide-content">
+        <h1 class="slide-title" id="slide-title">Lumina Slider</h1>
+        <p class="slide-desc" id="slide-desc">
+          A soft, radiant light that illuminates the soul.
+        </p>
+        <button type="button" class="shop-now-btn" id="shop-now-btn">
+          SHOP NOW
+        </button>
+      </div>
+
+      <div class="slider-bottom-bar">
+        <div
+          class="progress-track"
+          id="progress-track"
+          role="progressbar"
+          aria-valuemin="1"
+          aria-valuemax="2"
+          aria-valuenow="1"
+          aria-label="Slide Progress"
+        >
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="page-indicator" id="page-indicator" aria-live="polite">
+          <span class="current-page" id="page-current">01</span>
+          <span> / 02</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Discreet Top-Right Image Customizer & Drag-and-Drop Switcher -->
+    <aside class="top-right-tools" id="top-right-tools">
+      <button
+        type="button"
+        class="tools-trigger"
+        id="tools-trigger"
+        aria-expanded="false"
+        aria-controls="tools-panel"
+      >
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>Custom Slides</span>
+      </button>
+
+      <div class="tools-panel" id="tools-panel" role="region" aria-label="Local Slide Image Switcher">
+        <div class="tools-panel-header">
+          <span>Local Slide Assets</span>
+          <span style="font-weight: 400; color: rgba(255, 255, 255, 0.45)">16:9 Cover</span>
+        </div>
+
+        <label class="drop-slot" id="drop-slot-1">
+          <span>Slide 01 (Lumina)</span>
+          <span class="drop-slot-meta" id="slot-1-name">./slide1.jpg</span>
+          <input type="file" id="file-input-1" accept="image/*" aria-label="Upload Slide 1 Image" />
+        </label>
+
+        <label class="drop-slot" id="drop-slot-2">
+          <span>Slide 02 (Rose Mirage)</span>
+          <span class="drop-slot-meta" id="slot-2-name">./slide2.jpg</span>
+          <input type="file" id="file-input-2" accept="image/*" aria-label="Upload Slide 2 Image" />
+        </label>
+
+        <div class="tools-actions">
+          <button type="button" class="tool-action-btn" id="swap-slides-btn">
+            Swap Slide 1 ⇄ 2
+          </button>
+          <button type="button" class="tool-action-btn" id="reset-slides-btn">
+            Reset Default
+          </button>
+        </div>
+
+        <p class="tools-hint">
+          Tip: You can also drag &amp; drop image files anywhere onto the screen to replace slides live.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Full-Window Drag & Drop Visual Cue -->
+    <div class="window-drop-indicator" id="window-drop-indicator" aria-hidden="true">
+      <span>Drop image(s) to update WebGL slide texture</span>
+    </div>
+
+    <!-- Product Detail Modal for SHOP NOW CTA -->
+    <div
+      class="product-modal-backdrop"
+      id="product-modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div class="product-modal" id="product-modal">
+        <div class="product-modal-kicker" id="modal-kicker">COLLECTION 01 / 02</div>
+        <h2 class="product-modal-title" id="modal-title">Lumina Slider</h2>
+        <p class="product-modal-desc" id="modal-desc">
+          A soft, radiant light that illuminates the soul. Precision polycarbonate shield visor with warm spectral tinting and aerodynamic temple geometry.
+        </p>
+        <div class="product-modal-meta">
+          <span>Edition Availability</span>
+          <span id="modal-price">$420 USD · In Stock</span>
+        </div>
+        <div class="product-modal-actions">
+          <button type="button" class="btn-primary" id="modal-reserve-btn">
+            Reserve Piece
+          </button>
+          <button type="button" class="btn-secondary" id="modal-close-btn">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        'use strict';
+
+        // ============================================================================
+        // 1. SLIDE DATA & STATE
+        // ============================================================================
+        const SLIDES = [
+          {
+            index: 0,
+            pageNumber: '01',
+            title: 'Lumina Slider',
+            description: 'A soft, radiant light that illuminates the soul.',
+            modalDetail:
+              'A soft, radiant light that illuminates the soul. Precision optical shield eyewear engineered with warm amber refraction and ultra-lightweight frame architecture.',
+            price: '$420 USD · Limited Run',
+            defaultSrc: './slide1.jpg',
+          },
+          {
+            index: 1,
+            pageNumber: '02',
+            title: 'Rose Mirage',
+            description: 'Lost in a desert of blooming dreams and endless horizons.',
+            modalDetail:
+              'Lost in a desert of blooming dreams and endless horizons. High-altitude thermal down outerwear paired with polarized chromatic horizon goggles.',
+            price: '$680 USD · Archive Edition',
+            defaultSrc: './slide2.jpg',
+          },
+        ];
+
+        let currentSlideIndex = 0;
+        let isAnimating = false;
+
+        // ============================================================================
+        // 2. CUSTOM GLSL VERTEX & FRAGMENT SHADERS
+        // ============================================================================
+        const vertexShader = `
+          varying vec2 vUv;
+
+          void main() {
+            vUv = uv;
+            gl_Position = vec4(position, 1.0);
+          }
+        `;
+
+        const fragmentShader = `
+          precision highp float;
+
+          varying vec2 vUv;
+
+          uniform sampler2D uTexture1;
+          uniform sampler2D uTexture2;
+          uniform vec2 uResolution;
+          uniform vec2 uTex1Res;
+          uniform vec2 uTex2Res;
+          uniform float uProgress;
+
+          // Calculates object-fit: cover UVs so 16:9 images always fill 100vw x 100vh without distortion
+          vec2 getCoverUv(vec2 uv, vec2 screenRes, vec2 texRes) {
+            float screenAspect = screenRes.x / max(screenRes.y, 1.0);
+            float texAspect = texRes.x / max(texRes.y, 1.0);
+            vec2 scale = vec2(1.0);
+            if (screenAspect > texAspect) {
+              scale.y = texAspect / screenAspect;
+            } else {
+              scale.x = screenAspect / texAspect;
+            }
+            return (uv - 0.5) * scale + 0.5;
+          }
+
+          // Mirrored repeat + UV clamping to prevent black border glitches when sphere pulls edge pixels
+          vec2 safeLensUv(vec2 uv) {
+            vec2 mirrored = 1.0 - abs(1.0 - mod(abs(uv), 2.0));
+            return clamp(mirrored, 0.001, 0.999);
+          }
+
+          void main() {
+            vec2 center = vec2(0.5, 0.5);
+            float aspect = uResolution.x / max(uResolution.y, 1.0);
+            vec2 aspectVec = vec2(aspect, 1.0);
+
+            // Undistorted cover UVs for current and next slide
+            vec2 baseUv1 = clamp(getCoverUv(vUv, uResolution, uTex1Res), 0.0, 1.0);
+            vec2 baseUv2 = clamp(getCoverUv(vUv, uResolution, uTex2Res), 0.0, 1.0);
+            vec4 tex1 = texture2D(uTexture1, baseUv1);
+            vec4 tex2Final = texture2D(uTexture2, baseUv2);
+
+            if (uProgress <= 0.0001) {
+              gl_FragColor = tex1;
+              return;
+            }
+
+            if (uProgress >= 0.9999) {
+              gl_FragColor = tex2Final;
+              return;
+            }
+
+            // Global damping factor: pow(1.0 - uProgress, 1.8)
+            // Ensures all distortion, shadow, and chromatic aberration decay to 0% as the sphere fills the screen
+            float damp = pow(clamp(1.0 - uProgress, 0.0, 1.0), 1.8);
+
+            // Exponential sphere expansion from center up to maxRadius = 2.9
+            float expProgress = pow(uProgress, 1.5);
+            float maxRadius = 2.9;
+            float radius = mix(0.02, maxRadius, expProgress);
+
+            // Distance from screen center in aspect-corrected coordinates
+            vec2 delta = vUv - center;
+            vec2 aspectDelta = delta * aspectVec;
+            float dist = length(aspectDelta);
+
+            // Soft optical outer edge for the sphere
+            float edgeSoftness = 0.005 + 0.010 * uProgress;
+            float sphereMask = 1.0 - smoothstep(radius - edgeSoftness, radius + edgeSoftness, dist);
+
+            // Outside the sphere: crisp current image with a subtle dark ambient shadow hugging the sphere rim
+            float outerShadow = mix(1.0 - 0.26 * damp, 1.0, smoothstep(radius, radius + 0.06, dist));
+            vec3 outsideColor = tex1.rgb * outerShadow;
+
+            if (sphereMask <= 0.0001) {
+              gl_FragColor = vec4(outsideColor, 1.0);
+              return;
+            }
+
+            // Inside the sphere (dist < radius):
+            // 3D Spherical projection: z = sqrt(1.0 - r*r)
+            float r = clamp(dist / max(radius, 0.0001), 0.0, 1.0);
+            vec2 normXY = (dist > 0.0001) ? (aspectDelta / dist) * r : vec2(0.0);
+            float z = sqrt(max(0.0, 1.0 - r * r));
+            vec3 sphereNormal = normalize(vec3(normXY, max(z, 0.001)));
+
+            // Dark Optical Glass & Liquid Pinch Distortion:
+            // Center of sphere (z=1) magnifies slightly; towards rim (z->0), convex curvature
+            // pulls surrounding scene details inward along the 3D sphere normal with a subtle liquid wave
+            float liquidWave = sin(r * 9.0 - uProgress * 5.5) * 0.022 * (1.0 - z) * r;
+            float convexCurve = -0.18 * z + 0.46 * pow(1.0 - z, 1.35) + liquidWave;
+
+            // Total UV refraction offset damped by pow(1.0 - uProgress, 1.8)
+            vec2 refractionOffset = delta * convexCurve * damp;
+            vec2 distortedUv = vUv + refractionOffset;
+
+            // Tight, anti-ghosting Chromatic Aberration (max 0.012 to 0.018 at the Fresnel rim)
+            float fresnel = pow(1.0 - z, 1.8);
+            float caAmount = (0.003 + 0.015 * fresnel) * damp;
+            vec2 caOffset = (sphereNormal.xy / aspectVec) * caAmount;
+
+            vec2 uvR = safeLensUv(getCoverUv(distortedUv + caOffset, uResolution, uTex2Res));
+            vec2 uvG = safeLensUv(getCoverUv(distortedUv, uResolution, uTex2Res));
+            vec2 uvB = safeLensUv(getCoverUv(distortedUv - caOffset, uResolution, uTex2Res));
+
+            // Pure texture color sampling (no artificial neon rainbow overlay)
+            float colR = texture2D(uTexture2, uvR).r;
+            float colG = texture2D(uTexture2, uvG).g;
+            float colB = texture2D(uTexture2, uvB).b;
+            vec3 lensColor = vec3(colR, colG, colB);
+
+            // Subtle inner dark Fresnel shadow / vignette at the grazing rim for volumetric optical depth
+            float innerDarkVignette = mix(1.0, 0.62, pow(r, 3.8) * damp);
+            // Subtle optical glass rim specular highlight
+            vec3 lightDir = normalize(vec3(-0.35, 0.42, 0.84));
+            float glassSpec = pow(max(0.0, dot(sphereNormal, lightDir)), 28.0) * 0.06 * damp;
+
+            vec3 insideColor = lensColor * innerDarkVignette + vec3(glassSpec);
+
+            // Composite sphere over background
+            vec3 finalColor = mix(outsideColor, insideColor, sphereMask);
+
+            gl_FragColor = vec4(finalColor, 1.0);
+          }
+        `;
+
+        // ============================================================================
+        // 3. THREE.JS SCENE, SOFTWARE-WEBGL GUARD & ON-DEMAND RENDERING
+        // ============================================================================
+        const container = document.getElementById('webgl-container');
+
+        const isSoftwareGl = (function () {
+          try {
+            const probeCanvas = document.createElement('canvas');
+            const gl =
+              probeCanvas.getContext('webgl2') || probeCanvas.getContext('webgl');
+            if (!gl) return true;
+            const ext = gl.getExtension('WEBGL_debug_renderer_info');
+            const param = ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER;
+            const gpu = String(gl.getParameter(param));
+            const lose = gl.getExtension('WEBGL_lose_context');
+            if (lose) lose.loseContext();
+            return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
+          } catch (e) {
+            return false;
+          }
+        })();
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+        const renderer = new THREE.WebGLRenderer({
+          antialias: !isSoftwareGl,
+          powerPreference: 'high-performance',
+          alpha: false,
+        });
+        renderer.setPixelRatio(
+          isSoftwareGl ? 1 : Math.min(window.devicePixelRatio || 1, 2)
+        );
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        // Procedural fallback texture generator if local image files are missing
+        function createFallbackTexture(slideIdx) {
+          const c = document.createElement('canvas');
+          c.width = 1920;
+          c.height = 1080;
+          const ctx = c.getContext('2d');
+
+          if (slideIdx === 0) {
+            const grad = ctx.createRadialGradient(1050, 480, 80, 960, 540, 1100);
+            grad.addColorStop(0, '#585c62');
+            grad.addColorStop(0.55, '#2b2e33');
+            grad.addColorStop(1, '#121417');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 1920, 1080);
+
+            const streak = ctx.createLinearGradient(0, 380, 1200, 420);
+            streak.addColorStop(0, 'rgba(255, 90, 0, 0.05)');
+            streak.addColorStop(0.55, 'rgba(255, 115, 15, 0.85)');
+            streak.addColorStop(1, 'rgba(255, 165, 60, 0.0)');
+            ctx.fillStyle = streak;
+            ctx.fillRect(0, 290, 1220, 210);
+          } else {
+            const grad = ctx.createRadialGradient(960, 520, 120, 960, 540, 1050);
+            grad.addColorStop(0, '#2a41b8');
+            grad.addColorStop(0.6, '#101d6b');
+            grad.addColorStop(1, '#050926');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 1920, 1080);
+          }
+
+          const tex = new THREE.CanvasTexture(c);
+          tex.minFilter = THREE.LinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          tex.wrapS = THREE.MirroredRepeatWrapping;
+          tex.wrapT = THREE.MirroredRepeatWrapping;
+          return { texture: tex, width: 1920, height: 1080 };
+        }
+
+        const slideTextures = [
+          createFallbackTexture(0).texture,
+          createFallbackTexture(1).texture,
+        ];
+        const slideResolutions = [
+          new THREE.Vector2(1920, 1080),
+          new THREE.Vector2(1920, 1080),
+        ];
+
+        const uniforms = {
+          uTexture1: { value: slideTextures[0] },
+          uTexture2: { value: slideTextures[1] },
+          uResolution: {
+            value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+          },
+          uTex1Res: { value: slideResolutions[0].clone() },
+          uTex2Res: { value: slideResolutions[1].clone() },
+          uProgress: { value: 0.0 },
+        };
+
+        const geometry = new THREE.PlaneGeometry(2, 2);
+        const material = new THREE.ShaderMaterial({
+          vertexShader: vertexShader,
+          fragmentShader: fragmentShader,
+          uniforms: uniforms,
+          depthWrite: false,
+          depthTest: false,
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        // On-demand render scheduler with software-WebGL fence pacing
+        let renderBusy = false;
+        let renderDirty = false;
+
+        function afterDraw(cb) {
+          const gl = renderer.getContext();
+          if (gl && typeof gl.fenceSync === 'function') {
+            const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+            gl.flush();
+            const poll = function () {
+              const state = sync && gl.getSyncParameter(sync, gl.SYNC_STATUS);
+              if (state === gl.UNSIGNALED) {
+                window.setTimeout(poll, 4);
+              } else {
+                if (sync) gl.deleteSync(sync);
+                window.setTimeout(cb, 16);
+              }
+            };
+            window.setTimeout(poll, 4);
+          } else {
+            window.setTimeout(cb, 16);
+          }
+        }
+
+        function requestRender() {
+          if (!isSoftwareGl) {
+            renderer.render(scene, camera);
+            return;
+          }
+          if (renderBusy) {
+            renderDirty = true;
+            return;
+          }
+          renderBusy = true;
+          requestAnimationFrame(function () {
+            renderDirty = false;
+            renderer.render(scene, camera);
+            afterDraw(function () {
+              renderBusy = false;
+              if (renderDirty) requestRender();
+            });
+          });
+        }
+
+        // Sync active uniforms with slideTextures & slideResolutions
+        function syncShaderTextures() {
+          const nextIndex = (currentSlideIndex + 1) % SLIDES.length;
+          uniforms.uTexture1.value = slideTextures[currentSlideIndex];
+          uniforms.uTexture2.value = slideTextures[nextIndex];
+          uniforms.uTex1Res.value.copy(slideResolutions[currentSlideIndex]);
+          uniforms.uTex2Res.value.copy(slideResolutions[nextIndex]);
+          requestRender();
+        }
+
+        // Load texture from URL or DataURL and store natural aspect ratio
+        const textureLoader = new THREE.TextureLoader();
+        function loadSlideImage(slotIndex, url, labelName) {
+          textureLoader.load(
+            url,
+            function (tex) {
+              tex.minFilter = THREE.LinearFilter;
+              tex.magFilter = THREE.LinearFilter;
+              tex.wrapS = THREE.MirroredRepeatWrapping;
+              tex.wrapT = THREE.MirroredRepeatWrapping;
+              const img = tex.image;
+              const w = (img && (img.naturalWidth || img.width)) || 1920;
+              const h = (img && (img.naturalHeight || img.height)) || 1080;
+
+              if (slideTextures[slotIndex]) {
+                slideTextures[slotIndex].dispose();
+              }
+              slideTextures[slotIndex] = tex;
+              slideResolutions[slotIndex].set(w, h);
+
+              const slotLabel = document.getElementById(
+                slotIndex === 0 ? 'slot-1-name' : 'slot-2-name'
+              );
+              if (slotLabel && labelName) {
+                slotLabel.textContent = labelName;
+              }
+              syncShaderTextures();
+            },
+            undefined,
+            function () {
+              syncShaderTextures();
+            }
+          );
+        }
+
+        // Load default ./slide1.jpg and ./slide2.jpg
+        loadSlideImage(0, SLIDES[0].defaultSrc, './slide1.jpg');
+        loadSlideImage(1, SLIDES[1].defaultSrc, './slide2.jpg');
+        requestRender();
+
+        // ============================================================================
+        // 4. SYNCHRONIZED GSAP + WEBGL SPHERICAL LENS TRANSITION
+        // ============================================================================
+        const titleEl = document.getElementById('slide-title');
+        const descEl = document.getElementById('slide-desc');
+        const shopBtnEl = document.getElementById('shop-now-btn');
+        const pageCurrentEl = document.getElementById('page-current');
+        const pageIndicatorEl = document.getElementById('page-indicator');
+        const progressTrackEl = document.getElementById('progress-track');
+        const progressFillEl = document.getElementById('progress-fill');
+
+        function triggerNextSlide() {
+          if (isAnimating) return;
+          isAnimating = true;
+          document.body.setAttribute('data-transitioning', 'true');
+
+          const nextIndex = (currentSlideIndex + 1) % SLIDES.length;
+          const nextSlide = SLIDES[nextIndex];
+
+          // Ensure shader textures match current -> next
+          uniforms.uTexture1.value = slideTextures[currentSlideIndex];
+          uniforms.uTexture2.value = slideTextures[nextIndex];
+          uniforms.uTex1Res.value.copy(slideResolutions[currentSlideIndex]);
+          uniforms.uTex2Res.value.copy(slideResolutions[nextIndex]);
+          uniforms.uProgress.value = 0.0;
+
+          const textTargets = [titleEl, descEl, shopBtnEl];
+
+          const tl = gsap.timeline({
+            onComplete: function () {
+              currentSlideIndex = nextIndex;
+              uniforms.uTexture1.value = slideTextures[currentSlideIndex];
+              uniforms.uTex1Res.value.copy(slideResolutions[currentSlideIndex]);
+              const upcomingIdx = (currentSlideIndex + 1) % SLIDES.length;
+              uniforms.uTexture2.value = slideTextures[upcomingIdx];
+              uniforms.uTex2Res.value.copy(slideResolutions[upcomingIdx]);
+              uniforms.uProgress.value = 0.0;
+
+              document.body.setAttribute('data-slide', String(currentSlideIndex));
+              document.body.setAttribute('data-transitioning', 'false');
+              progressTrackEl.setAttribute(
+                'aria-valuenow',
+                String(currentSlideIndex + 1)
+              );
+              isAnimating = false;
+              requestRender();
+            },
+          });
+
+          // 1. WebGL Spherical Lens Bubble Expansion (1.5s, power3.inOut)
+          tl.to(
+            uniforms.uProgress,
+            {
+              value: 1.0,
+              duration: 1.5,
+              ease: 'power3.inOut',
+              onUpdate: requestRender,
+            },
+            0
+          );
+
+          // 2. Progress Indicator Bar Shift (0% for Slide 1, 100% for Slide 2)
+          tl.to(
+            progressFillEl,
+            {
+              xPercent: nextIndex * 100,
+              duration: 1.5,
+              ease: 'power3.inOut',
+            },
+            0
+          );
+
+          // 3. Synchronized Text Fade + Soft Gaussian Blur Out
+          tl.to(
+            textTargets,
+            {
+              opacity: 0,
+              filter: 'blur(12px)',
+              y: -8,
+              duration: 0.48,
+              stagger: 0.04,
+              ease: 'power2.in',
+            },
+            0.05
+          );
+
+          tl.to(
+            pageIndicatorEl,
+            {
+              opacity: 0,
+              filter: 'blur(6px)',
+              duration: 0.38,
+              ease: 'power2.in',
+            },
+            0.1
+          );
+
+          // 4. Swap DOM Copy & Blur-Fade In as the Sphere Passes Center
+          tl.call(
+            function () {
+              titleEl.textContent = nextSlide.title;
+              descEl.textContent = nextSlide.description;
+              pageCurrentEl.textContent = nextSlide.pageNumber;
+              gsap.set(textTargets, { y: 10 });
+            },
+            null,
+            0.56
+          );
+
+          tl.to(
+            textTargets,
+            {
+              opacity: 1,
+              filter: 'blur(0px)',
+              y: 0,
+              duration: 0.78,
+              stagger: 0.05,
+              ease: 'power2.out',
+            },
+            0.58
+          );
+
+          tl.to(
+            pageIndicatorEl,
+            {
+              opacity: 1,
+              filter: 'blur(0px)',
+              duration: 0.65,
+              ease: 'power2.out',
+            },
+            0.62
+          );
+        }
+
+        // Click & keyboard triggers on canvas and progress bar
+        container.addEventListener('click', function () {
+          triggerNextSlide();
+        });
+
+        container.addEventListener('keydown', function (e) {
+          if (
+            e.key === 'Enter' ||
+            e.key === ' ' ||
+            e.key === 'ArrowRight' ||
+            e.key === 'ArrowLeft'
+          ) {
+            e.preventDefault();
+            triggerNextSlide();
+          }
+        });
+
+        window.addEventListener('keydown', function (e) {
+          if (modalBackdrop.classList.contains('open')) {
+            if (e.key === 'Escape') closeModal();
+            return;
+          }
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            triggerNextSlide();
+          }
+        });
+
+        progressTrackEl.addEventListener('click', function (e) {
+          e.stopPropagation();
+          triggerNextSlide();
+        });
+
+        // ============================================================================
+        // 5. RESPONSIVE RESIZE HANDLER
+        // ============================================================================
+        window.addEventListener('resize', function () {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          renderer.setSize(w, h);
+          uniforms.uResolution.value.set(w, h);
+          requestRender();
+        });
+
+        // ============================================================================
+        // 6. TOP-RIGHT LOCAL IMAGE UPLOADER & DRAG-AND-DROP
+        // ============================================================================
+        const toolsContainer = document.getElementById('top-right-tools');
+        const toolsTrigger = document.getElementById('tools-trigger');
+        const toolsPanel = document.getElementById('tools-panel');
+        const fileInput1 = document.getElementById('file-input-1');
+        const fileInput2 = document.getElementById('file-input-2');
+        const swapSlidesBtn = document.getElementById('swap-slides-btn');
+        const resetSlidesBtn = document.getElementById('reset-slides-btn');
+        const windowDropIndicator = document.getElementById('window-drop-indicator');
+
+        toolsContainer.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+
+        toolsTrigger.addEventListener('click', function () {
+          const isOpen = toolsPanel.classList.toggle('open');
+          toolsTrigger.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        function applyFileToSlide(slotIndex, file) {
+          if (!file || !file.type.startsWith('image/')) return;
+          const reader = new FileReader();
+          reader.onload = function (evt) {
+            if (evt.target && evt.target.result) {
+              loadSlideImage(slotIndex, evt.target.result, file.name);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+
+        fileInput1.addEventListener('change', function (e) {
+          if (e.target.files && e.target.files[0]) {
+            applyFileToSlide(0, e.target.files[0]);
+          }
+        });
+
+        fileInput2.addEventListener('change', function (e) {
+          if (e.target.files && e.target.files[0]) {
+            applyFileToSlide(1, e.target.files[0]);
+          }
+        });
+
+        swapSlidesBtn.addEventListener('click', function () {
+          const tempTex = slideTextures[0];
+          slideTextures[0] = slideTextures[1];
+          slideTextures[1] = tempTex;
+
+          const tempRes = slideResolutions[0].clone();
+          slideResolutions[0].copy(slideResolutions[1]);
+          slideResolutions[1].copy(tempRes);
+
+          const label1 = document.getElementById('slot-1-name');
+          const label2 = document.getElementById('slot-2-name');
+          const tmpText = label1.textContent;
+          label1.textContent = label2.textContent;
+          label2.textContent = tmpText;
+
+          syncShaderTextures();
+        });
+
+        resetSlidesBtn.addEventListener('click', function () {
+          loadSlideImage(0, SLIDES[0].defaultSrc, './slide1.jpg');
+          loadSlideImage(1, SLIDES[1].defaultSrc, './slide2.jpg');
+        });
+
+        // Window-wide Drag & Drop support
+        let dragDepth = 0;
+        window.addEventListener('dragenter', function (e) {
+          e.preventDefault();
+          dragDepth++;
+          windowDropIndicator.classList.add('active');
+        });
+
+        window.addEventListener('dragover', function (e) {
+          e.preventDefault();
+        });
+
+        window.addEventListener('dragleave', function (e) {
+          e.preventDefault();
+          dragDepth = Math.max(0, dragDepth - 1);
+          if (dragDepth === 0) {
+            windowDropIndicator.classList.remove('active');
+          }
+        });
+
+        window.addEventListener('drop', function (e) {
+          e.preventDefault();
+          dragDepth = 0;
+          windowDropIndicator.classList.remove('active');
+          const files = e.dataTransfer && e.dataTransfer.files;
+          if (!files || files.length === 0) return;
+
+          if (files.length >= 2) {
+            applyFileToSlide(0, files[0]);
+            applyFileToSlide(1, files[1]);
+          } else {
+            // Replace currently active slide image
+            applyFileToSlide(currentSlideIndex, files[0]);
+          }
+        });
+
+        // ============================================================================
+        // 7. SHOP NOW PRODUCT MODAL HANDLER
+        // ============================================================================
+        const modalBackdrop = document.getElementById('product-modal-backdrop');
+        const modalKicker = document.getElementById('modal-kicker');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalPrice = document.getElementById('modal-price');
+        const modalReserveBtn = document.getElementById('modal-reserve-btn');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        function openModal() {
+          const slide = SLIDES[currentSlideIndex];
+          modalKicker.textContent = 'COLLECTION ' + slide.pageNumber + ' / 02';
+          modalTitle.textContent = slide.title;
+          modalDesc.textContent = slide.modalDetail;
+          modalPrice.textContent = slide.price;
+          modalReserveBtn.textContent = 'Reserve Piece';
+          modalBackdrop.classList.add('open');
+        }
+
+        function closeModal() {
+          modalBackdrop.classList.remove('open');
+        }
+
+        shopBtnEl.addEventListener('click', function (e) {
+          e.stopPropagation();
+          openModal();
+        });
+
+        modalCloseBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          closeModal();
+        });
+
+        modalReserveBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          modalReserveBtn.textContent = 'Added to Private Reservation';
+        });
+
+        modalBackdrop.addEventListener('click', function (e) {
+          if (e.target === modalBackdrop) {
+            closeModal();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
