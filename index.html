@@ -1,26 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lumina & Rose Mirage — WebGL Spherical Lens Slider</title>
+    <title>Lumina &amp; Rose Mirage — WebGL Orbital Showcase &amp; Lens Slider</title>
     <meta
       name="description"
-      content="Interactive WebGL image slider featuring custom GLSL spherical bulge refraction, rainbow prism chromatic aberration, and synchronized GSAP blur-fade typography."
+      content="Interactive 3D orbital device mockup showcase with smooth wheel scrolling and WebGL spherical lens image slider."
     />
-    <meta property="og:title" content="Lumina & Rose Mirage — WebGL Spherical Lens Slider" />
+    <meta
+      property="og:title"
+      content="Lumina &amp; Rose Mirage — WebGL Orbital Showcase &amp; Lens Slider"
+    />
     <meta
       property="og:description"
-      content="Interactive WebGL image slider featuring custom GLSL spherical bulge refraction, rainbow prism chromatic aberration, and synchronized GSAP blur-fade typography."
+      content="Interactive 3D orbital device mockup showcase with smooth wheel scrolling and WebGL spherical lens image slider."
     />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Google Fonts: Luxury Editorial Serif + Clean Sans -->
+    <!-- Google Fonts: Cormorant Garamond, Syne, Plus Jakarta Sans & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap"
       rel="stylesheet"
     />
 
@@ -37,131 +40,787 @@
         padding: 0;
       }
 
-      html,
-      body {
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        background-color: #08090f;
-        color: #ffffff;
+      html {
+        scroll-behavior: smooth;
+        background-color: #faf9f6;
+        color: #111215;
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        width: 100%;
+        overflow-x: hidden;
+        background-color: #faf9f6;
+      }
+
+      /* ==========================================================================
+         FLOATING SECTION SWITCHER (TOP NAVIGATION PILL)
+         ========================================================================== */
+      .section-switcher {
+        position: fixed;
+        top: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 90;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 8px;
+        background: rgba(18, 19, 24, 0.84);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .section-nav-btn {
+        appearance: none;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.68);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 7px 13px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: color 0.2s ease, background 0.2s ease;
+        text-decoration: none;
+      }
+
+      .section-nav-btn:hover {
+        color: #ffffff;
+      }
+
+      .section-nav-btn.active {
+        background: #ffffff;
+        color: #0e1015;
+        font-weight: 600;
+      }
+
+      /* ==========================================================================
+         SECTION 1 (TOP PAGE): CONTINUOUS ORBITAL WHEEL SHOWCASE (LIKE VIDEO 2)
+         ========================================================================== */
+      .portfolio-section {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        min-height: 680px;
+        overflow: hidden;
+        background: radial-gradient(
+          circle at 56% 42%,
+          #ffffff 0%,
+          #faf9f6 62%,
+          #f2f0ea 100%
+        );
+        color: #111215;
         user-select: none;
       }
 
-      /* Fullscreen WebGL Canvas Container */
-      #webgl-container {
-        position: fixed;
+      /* Interactive Orbital Track Stage (No Bubble Effect — Pure Curved Scroll/Drag) */
+      .orbital-wheel-stage {
+        position: absolute;
         inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 6;
+        cursor: grab;
+        overflow: hidden;
+      }
+
+      .orbital-wheel-stage:active {
+        cursor: grabbing;
+      }
+
+      .orbital-item {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center center;
+        will-change: transform, opacity;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        -webkit-user-drag: none;
+      }
+
+      .orbital-item-img {
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+        -webkit-user-drag: none;
+        filter: drop-shadow(0 24px 34px rgba(14, 16, 22, 0.16));
+        transition: filter 0.25s ease;
+      }
+
+      .orbital-item:hover .orbital-item-img {
+        filter: drop-shadow(0 30px 42px rgba(14, 16, 22, 0.22));
+      }
+
+      .orbital-item-shadow {
+        position: absolute;
+        bottom: -6%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 68%;
+        height: 28px;
+        border-radius: 50%;
+        background: radial-gradient(
+          ellipse at center,
+          rgba(15, 17, 22, 0.22) 0%,
+          rgba(15, 17, 22, 0.08) 52%,
+          rgba(15, 17, 22, 0) 76%
+        );
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      /* Separate High Z-Index HTML Layer (z-index: 25) */
+      .portfolio-ui {
+        position: absolute;
+        inset: 0;
+        z-index: 25;
+        pointer-events: none;
+        display: grid;
+        grid-template-columns: minmax(280px, 430px) 1fr minmax(280px, 410px);
+        grid-template-rows: 1fr auto;
+        padding: clamp(28px, 4.5vw, 64px);
+        transition: opacity 0.35s ease;
+      }
+
+      .portfolio-section.detail-mode .portfolio-ui {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Left Column: Page Counter, Project Title, Subtitle, View Project Button */
+      .portfolio-left {
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+        align-self: start;
+        padding-top: clamp(32px, 5vh, 64px);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        position: relative;
+        z-index: 26;
+        will-change: transform, opacity;
+      }
+
+      .portfolio-page-counter {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        color: #25272c;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .portfolio-page-counter .total {
+        color: rgba(17, 18, 21, 0.45);
+      }
+
+      .portfolio-title {
+        font-family: 'Syne', 'Plus Jakarta Sans', sans-serif;
+        font-size: clamp(2.15rem, 3.8vw, 3.65rem);
+        font-weight: 800;
+        line-height: 0.96;
+        letter-spacing: -0.03em;
+        text-transform: uppercase;
+        color: #0d0e11;
+        margin-bottom: 14px;
+      }
+
+      .portfolio-subtitle {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: clamp(0.95rem, 1.15vw, 1.12rem);
+        font-weight: 600;
+        color: #22252a;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+
+      .portfolio-device-meta {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 400;
+        color: rgba(17, 18, 21, 0.56);
+        margin-bottom: 26px;
+        max-width: 34ch;
+        line-height: 1.5;
+      }
+
+      .view-project-btn {
+        pointer-events: auto;
+        appearance: none;
+        background: transparent;
+        border: none;
+        color: #0d0e11;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        padding: 6px 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+      }
+
+      .view-project-btn .label-underline {
+        position: relative;
+        padding-bottom: 4px;
+      }
+
+      .view-project-btn .label-underline::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 1.5px;
+        background-color: #0d0e11;
+        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        transform-origin: left center;
+      }
+
+      .view-project-btn:hover {
+        transform: translateX(4px);
+      }
+
+      /* Right Column: Tech Stack Badges Grid */
+      .portfolio-right {
+        grid-column: 3 / 4;
+        grid-row: 1 / 2;
+        align-self: end;
+        justify-self: end;
+        margin-bottom: clamp(44px, 7vh, 84px);
+        width: 100%;
+        max-width: 390px;
+        position: relative;
+        z-index: 26;
+        will-change: transform, opacity;
+      }
+
+      .tech-grid-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(17, 18, 21, 0.46);
+        margin-bottom: 10px;
+      }
+
+      .tech-badges-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        pointer-events: auto;
+      }
+
+      .tech-badge-box {
+        appearance: none;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(17, 18, 21, 0.15);
+        border-radius: 4px;
+        padding: 13px 6px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: #141619;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .tech-badge-box:hover {
+        border-color: #111215;
+        background: #ffffff;
+        transform: translateY(-1px);
+      }
+
+      .tech-badge-box.selected {
+        background: #141619;
+        color: #ffffff;
+        border-color: #141619;
+      }
+
+      /* Bottom Bar: Interactive "DRAG THE WHEEL" Controller */
+      .portfolio-bottom {
+        grid-column: 1 / -1;
+        grid-row: 2 / 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: relative;
+        z-index: 26;
+      }
+
+      .wheel-control-wrapper {
+        pointer-events: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .wheel-center-dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background-color: #d93829;
+      }
+
+      .wheel-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .wheel-nav-arrow {
+        appearance: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid rgba(17, 18, 21, 0.18);
+        background: rgba(255, 255, 255, 0.92);
+        color: #141619;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+      }
+
+      .wheel-nav-arrow:hover {
+        background: #141619;
+        color: #ffffff;
+        border-color: #141619;
+      }
+
+      /* 3D Metallic Ribbed Wheel Cylinder (matching Video 2) */
+      .wheel-cylinder {
+        position: relative;
+        width: clamp(220px, 24vw, 310px);
+        height: 22px;
+        border-radius: 12px;
+        background: linear-gradient(
+          90deg,
+          #4e5056 0%,
+          #8f939d 18%,
+          #d8dbe2 50%,
+          #8f939d 82%,
+          #4e5056 100%
+        );
+        box-shadow:
+          inset 0 2px 4px rgba(255, 255, 255, 0.65),
+          inset 0 -3px 5px rgba(0, 0, 0, 0.45),
+          0 8px 18px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+        cursor: grab;
+        border: 1px solid rgba(17, 18, 21, 0.28);
+      }
+
+      .wheel-cylinder:active {
+        cursor: grabbing;
+      }
+
+      .wheel-ridges {
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          90deg,
+          rgba(18, 19, 23, 0.52) 0px,
+          rgba(18, 19, 23, 0.52) 1.5px,
+          transparent 1.5px,
+          transparent 9px
+        );
+        background-size: 36px 100%;
+      }
+
+      .wheel-meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: clamp(220px, 24vw, 310px);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        color: rgba(17, 18, 21, 0.62);
+      }
+
+      .wheel-sound-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 14px;
+        border: 1px solid rgba(17, 18, 21, 0.28);
+        border-radius: 2px;
+        font-size: 0.55rem;
+        letter-spacing: 0;
+        cursor: pointer;
+      }
+
+      /* ==========================================================================
+         EXPANDED PROJECT DETAIL DRAWER (Matches 00:02 & 00:07 of Video 2)
+         ========================================================================== */
+      .project-detail-drawer {
+        position: absolute;
+        inset: 0;
+        z-index: 40;
+        background: transparent;
+        display: grid;
+        grid-template-columns: 1.12fr 0.88fr;
+        padding: clamp(28px, 4.5vw, 64px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .project-detail-drawer.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .detail-left-column {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+        position: relative;
+        padding-top: 24px;
+        pointer-events: none;
+      }
+
+      .detail-bottom-nav {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-top: 12px;
+        pointer-events: auto;
+      }
+
+      .detail-thumbs-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+
+      .detail-thumb-btn {
+        width: 56px;
+        height: 46px;
+        border-radius: 8px;
+        border: 1px solid rgba(17, 18, 21, 0.14);
+        background: #ffffff;
+        padding: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+
+      .detail-thumb-btn.active {
+        border-color: #111215;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .detail-thumb-btn img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      .detail-pager-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .detail-circle-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid rgba(17, 18, 21, 0.16);
+        background: #ffffff;
+        color: #111215;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+      }
+
+      .detail-circle-btn:hover {
+        background: #111215;
+        color: #ffffff;
+      }
+
+      .detail-right-column {
+        align-self: center;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: clamp(16px, 3vw, 48px);
+        background: rgba(250, 249, 246, 0.88);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 28px;
+      }
+
+      .detail-close-top {
+        align-self: flex-end;
+        appearance: none;
+        background: transparent;
+        border: 1px solid rgba(17, 18, 21, 0.18);
+        border-radius: 20px;
+        padding: 7px 14px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 20px;
+        transition: all 0.2s ease;
+      }
+
+      .detail-close-top:hover {
+        background: #111215;
+        color: #ffffff;
+      }
+
+      .detail-title {
+        font-family: 'Syne', sans-serif;
+        font-size: clamp(2.1rem, 3.4vw, 3.2rem);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        margin-bottom: 12px;
+      }
+
+      .detail-subtitle {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #25282e;
+        margin-bottom: 16px;
+      }
+
+      .detail-description {
+        font-size: 0.88rem;
+        line-height: 1.65;
+        color: rgba(17, 18, 21, 0.72);
+        margin-bottom: 24px;
+        max-width: 52ch;
+      }
+
+      .detail-cta-pill {
+        width: 100%;
+        max-width: 480px;
+        padding: 16px 24px;
+        border-radius: 999px;
+        border: none;
+        background: #8a8d8a;
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-align: center;
+        cursor: pointer;
+        margin-top: 18px;
+        margin-bottom: 20px;
+        transition: background 0.2s ease;
+      }
+
+      .detail-cta-pill:hover {
+        background: #141619;
+      }
+
+      .detail-back-link {
+        appearance: none;
+        background: transparent;
+        border: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: #111215;
+        cursor: pointer;
+        padding-bottom: 4px;
+        border-bottom: 1.5px solid #111215;
+      }
+
+      /* ==========================================================================
+         SECTION 2 (BOTTOM PAGE): LUMINA & ROSE MIRAGE SPHERICAL LENS SLIDER
+         ========================================================================== */
+      .lumina-section {
+        position: relative;
         width: 100vw;
         height: 100vh;
+        min-height: 640px;
+        overflow: hidden;
+        background-color: #08090c;
+        color: #f8fafc;
+        user-select: none;
+      }
+
+      #webgl-container {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         z-index: 1;
         cursor: pointer;
       }
 
       #webgl-container canvas {
         display: block;
-        width: 100% !important;
-        height: 100% !important;
+        width: 100%;
+        height: 100%;
       }
 
-      /* Subtle Bottom Readability Gradient Scrim */
       .vignette-scrim {
-        position: fixed;
+        position: absolute;
         inset: 0;
         z-index: 2;
         pointer-events: none;
-        background: linear-gradient(
-          to top,
-          rgba(0, 0, 0, 0.52) 0%,
-          rgba(0, 0, 0, 0.18) 28%,
-          rgba(0, 0, 0, 0) 60%
-        );
+        background:
+          radial-gradient(
+            circle at 50% 45%,
+            rgba(0, 0, 0, 0) 48%,
+            rgba(0, 0, 0, 0.42) 100%
+          ),
+          linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.14) 0%,
+            rgba(0, 0, 0, 0) 35%,
+            rgba(0, 0, 0, 0.65) 100%
+          );
       }
 
-      /* Main Editorial UI Overlay */
       .slider-ui {
-        position: fixed;
+        position: absolute;
         inset: 0;
         z-index: 10;
         pointer-events: none;
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        padding: clamp(28px, 4.5vw, 64px) clamp(28px, 4.5vw, 68px);
+        padding: clamp(24px, 4.5vw, 56px);
       }
 
-      /* Left Content Block */
       .slide-content {
         max-width: 540px;
-        margin-bottom: clamp(32px, 4.5vh, 48px);
+        margin-bottom: clamp(22px, 3.2vh, 36px);
         will-change: transform, opacity, filter;
       }
 
       .slide-title {
-        font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-        font-weight: 400;
-        font-size: clamp(2.75rem, 4.4vw, 4.15rem);
-        line-height: 1.08;
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-weight: 600;
+        font-size: clamp(2.35rem, 4.2vw, 3.75rem);
+        line-height: 1.06;
         letter-spacing: -0.01em;
         color: #ffffff;
-        margin-bottom: 14px;
-        text-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
-        will-change: transform, opacity, filter;
+        margin-bottom: 10px;
+        text-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
       }
 
       .slide-desc {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-weight: 400;
-        font-size: clamp(0.875rem, 1.02vw, 0.98rem);
+        font-weight: 300;
+        font-size: clamp(0.875rem, 1.05vw, 1rem);
         line-height: 1.55;
-        color: rgba(255, 255, 255, 0.84);
-        letter-spacing: 0.01em;
-        margin-bottom: clamp(26px, 3.6vh, 38px);
-        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
-        will-change: transform, opacity, filter;
+        color: rgba(248, 250, 252, 0.78);
+        margin-bottom: 22px;
+        max-width: 46ch;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
       }
 
       .shop-now-btn {
         pointer-events: auto;
-        display: inline-block;
+        appearance: none;
         background: transparent;
         border: none;
-        border-bottom: 1.5px solid rgba(255, 255, 255, 0.88);
-        padding: 4px 0 7px 0;
         color: #ffffff;
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        letter-spacing: 0.15em;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
+        padding: 6px 0 9px 0;
         cursor: pointer;
-        transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-        will-change: transform, opacity, filter;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: opacity 0.25s ease;
       }
 
-      .shop-now-btn:hover,
-      .shop-now-btn:focus-visible {
-        opacity: 0.8;
-        border-bottom-color: #ffffff;
-        transform: translateY(-1px);
-        outline: none;
+      .shop-now-btn::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 1.5px;
+        background-color: #ffffff;
+        transform-origin: right center;
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
       }
 
-      /* Bottom Row: Progress Indicator Line (Left) + Page Number (Right) */
+      .shop-now-btn:hover {
+        opacity: 0.9;
+      }
+
+      .shop-now-btn:hover::after {
+        transform: scaleX(0.72);
+        transform-origin: left center;
+      }
+
       .slider-bottom-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
         width: 100%;
+        gap: 24px;
       }
 
       .progress-track {
         position: relative;
-        width: 96px;
-        height: 1.5px;
-        background: rgba(255, 255, 255, 0.24);
+        width: clamp(180px, 24vw, 320px);
+        height: 2px;
+        background: rgba(255, 255, 255, 0.22);
         overflow: hidden;
         pointer-events: auto;
         cursor: pointer;
@@ -171,31 +830,33 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 50%;
         height: 100%;
+        width: 50%;
         background: #ffffff;
-        will-change: transform;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        transform-origin: left center;
       }
 
       .page-indicator {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.74rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(0.78rem, 0.95vw, 0.9rem);
+        font-weight: 500;
         letter-spacing: 0.16em;
+        color: rgba(255, 255, 255, 0.72);
         font-variant-numeric: tabular-nums;
-        color: rgba(255, 255, 255, 0.45);
-        will-change: opacity, filter;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        will-change: opacity, filter, transform;
       }
 
       .page-indicator .current-page {
         color: #ffffff;
-        font-weight: 600;
       }
 
-      /* Discreet / Hidden Top-Right Local Image Switcher & Drag-and-Drop */
+      /* Hidden/Subtle Top-Right Local Asset Switcher & Drag-and-Drop */
       .top-right-tools {
-        position: fixed;
+        position: absolute;
         top: 20px;
-        right: 24px;
+        right: 20px;
         z-index: 30;
         display: flex;
         flex-direction: column;
@@ -209,26 +870,21 @@
         gap: 6px;
         padding: 7px 12px;
         border-radius: 6px;
-        background: rgba(12, 14, 22, 0.45);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        color: rgba(255, 255, 255, 0.75);
+        background: rgba(12, 14, 22, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.85);
         font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: 0.72rem;
         font-weight: 500;
-        letter-spacing: 0.04em;
         cursor: pointer;
-        opacity: 0.28;
-        transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        opacity: 0.45;
+        transition: opacity 0.2s ease, background 0.2s ease;
       }
 
       .top-right-tools:hover .tools-trigger,
-      .tools-trigger:focus-visible,
       .tools-trigger[aria-expanded='true'] {
         opacity: 1;
-        background: rgba(12, 14, 22, 0.88);
-        border-color: rgba(255, 255, 255, 0.28);
-        color: #ffffff;
-        outline: none;
+        background: rgba(12, 14, 22, 0.9);
       }
 
       .tools-panel {
@@ -236,10 +892,10 @@
         margin-top: 8px;
         width: 280px;
         padding: 14px;
-        border-radius: 10px;
-        background: rgba(12, 14, 22, 0.94);
+        border-radius: 8px;
+        background: rgba(10, 12, 18, 0.92);
         border: 1px solid rgba(255, 255, 255, 0.16);
-        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
         display: none;
         flex-direction: column;
         gap: 10px;
@@ -250,35 +906,47 @@
       }
 
       .tools-panel-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 600;
-        color: #ffffff;
-        padding-bottom: 6px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
       .drop-slot {
         position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 9px 11px;
-        border-radius: 7px;
         border: 1px dashed rgba(255, 255, 255, 0.24);
-        background: rgba(255, 255, 255, 0.03);
-        font-size: 0.72rem;
-        color: rgba(255, 255, 255, 0.82);
+        border-radius: 6px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
         cursor: pointer;
-        transition: border-color 0.15s ease, background 0.15s ease;
+        transition: border-color 0.2s ease, background 0.2s ease;
       }
 
       .drop-slot:hover,
-      .drop-slot.drag-over {
+      .drop-slot.dragover {
         border-color: rgba(255, 255, 255, 0.75);
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .drop-slot span {
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: #f8fafc;
+      }
+
+      .drop-slot .drop-slot-meta {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.66rem;
+        color: rgba(248, 250, 252, 0.52);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .drop-slot input[type='file'] {
@@ -288,355 +956,1033 @@
         cursor: pointer;
       }
 
-      .drop-slot-meta {
-        font-size: 0.66rem;
-        color: rgba(255, 255, 255, 0.48);
-        max-width: 120px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
       .tools-actions {
         display: flex;
         gap: 8px;
-        margin-top: 2px;
       }
 
       .tool-action-btn {
         flex: 1;
-        padding: 7px 10px;
-        border-radius: 6px;
+        padding: 6px 8px;
+        border-radius: 4px;
         border: 1px solid rgba(255, 255, 255, 0.16);
         background: rgba(255, 255, 255, 0.06);
-        color: #ffffff;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: rgba(255, 255, 255, 0.85);
         font-size: 0.68rem;
-        font-weight: 500;
+        font-family: 'Plus Jakarta Sans', sans-serif;
         cursor: pointer;
-        white-space: nowrap;
-        transition: background 0.15s ease, border-color 0.15s ease;
+        transition: background 0.2s ease;
       }
 
       .tool-action-btn:hover {
-        background: rgba(255, 255, 255, 0.14);
-        border-color: rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.15);
       }
 
-      .tools-hint {
-        font-size: 0.65rem;
-        line-height: 1.4;
-        color: rgba(255, 255, 255, 0.45);
-      }
-
-      /* Full-Window Drag-and-Drop Banner */
-      .window-drop-indicator {
-        position: fixed;
-        inset: 16px;
-        z-index: 50;
-        pointer-events: none;
-        border: 2px dashed rgba(255, 255, 255, 0.65);
-        border-radius: 14px;
-        background: rgba(8, 9, 15, 0.65);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-      }
-
-      .window-drop-indicator.active {
-        opacity: 1;
-      }
-
-      .window-drop-indicator span {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.5rem;
-        color: #ffffff;
-        letter-spacing: 0.02em;
-      }
-
-      /* Minimal Product Showcase Modal when clicking SHOP NOW */
-      .product-modal-backdrop {
-        position: fixed;
-        inset: 0;
-        z-index: 40;
-        background: rgba(6, 7, 12, 0.72);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-      }
-
-      .product-modal-backdrop.open {
-        display: flex;
-      }
-
-      .product-modal {
-        width: 100%;
-        max-width: 440px;
-        background: #10121a;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 12px;
-        padding: 28px;
-        color: #ffffff;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
-      }
-
-      .product-modal-kicker {
-        font-size: 0.68rem;
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        color: rgba(255, 255, 255, 0.5);
-        margin-bottom: 6px;
-      }
-
-      .product-modal-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.85rem;
-        font-weight: 400;
-        margin-bottom: 10px;
-      }
-
-      .product-modal-desc {
-        font-size: 0.86rem;
-        line-height: 1.6;
-        color: rgba(255, 255, 255, 0.75);
-        margin-bottom: 20px;
-      }
-
-      .product-modal-meta {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        font-size: 0.8rem;
-        margin-bottom: 22px;
-        font-variant-numeric: tabular-nums;
-      }
-
-      .product-modal-actions {
-        display: flex;
-        gap: 10px;
-      }
-
-      .btn-primary {
-        flex: 1;
-        padding: 11px 16px;
-        border-radius: 6px;
-        border: none;
-        background: #ffffff;
-        color: #090a10;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        cursor: pointer;
-      }
-
-      .btn-secondary {
-        padding: 11px 16px;
-        border-radius: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.22);
-        background: transparent;
-        color: #ffffff;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.75rem;
-        font-weight: 500;
-        cursor: pointer;
-      }
-
-      @media (max-width: 640px) {
-        .slider-ui {
-          padding: 24px 22px;
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .portfolio-ui {
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: auto 1fr auto;
         }
-        .slide-content {
-          margin-bottom: 28px;
+        .portfolio-left {
+          grid-column: 1 / 2;
+          grid-row: 1 / 2;
+          padding-top: 44px;
         }
-        .slide-title {
-          font-size: 2.35rem;
+        .portfolio-right {
+          grid-column: 2 / 3;
+          grid-row: 1 / 2;
+          align-self: start;
+          padding-top: 44px;
+          margin-bottom: 0;
+        }
+        .portfolio-bottom {
+          grid-column: 1 / -1;
+          grid-row: 3 / 4;
+        }
+        .project-detail-drawer {
+          grid-template-columns: 1fr;
+          overflow-y: auto;
+        }
+      }
+
+      @media (max-width: 680px) {
+        .portfolio-ui {
+          grid-template-columns: 1fr;
+          padding: 20px;
+        }
+        .portfolio-right {
+          grid-column: 1 / 2;
+          grid-row: 2 / 3;
+          align-self: end;
+          justify-self: start;
+          margin-bottom: 12px;
+        }
+        .tech-badges-grid {
+          grid-template-columns: repeat(4, minmax(64px, 1fr));
+          gap: 6px;
+        }
+        .tech-badge-box {
+          padding: 8px 4px;
+          font-size: 0.66rem;
         }
       }
     </style>
   </head>
-  <body data-slide="0" data-transitioning="false">
-    <!-- WebGL Interactive Canvas -->
-    <div
-      id="webgl-container"
-      data-testid="webgl-slider-canvas"
-      role="button"
-      tabindex="0"
-      aria-label="Next slide transition"
-    ></div>
-
-    <!-- Subtle contrast scrim for bottom typography -->
-    <div class="vignette-scrim" aria-hidden="true"></div>
-
-    <!-- Editorial Overlay UI (Synced via GSAP) -->
-    <main class="slider-ui">
-      <div class="slide-content" id="slide-content">
-        <h1 class="slide-title" id="slide-title">Lumina Slider</h1>
-        <p class="slide-desc" id="slide-desc">
-          A soft, radiant light that illuminates the soul.
-        </p>
-        <button type="button" class="shop-now-btn" id="shop-now-btn">
-          SHOP NOW
-        </button>
-      </div>
-
-      <div class="slider-bottom-bar">
-        <div
-          class="progress-track"
-          id="progress-track"
-          role="progressbar"
-          aria-valuemin="1"
-          aria-valuemax="2"
-          aria-valuenow="1"
-          aria-label="Slide Progress"
-        >
-          <div class="progress-fill" id="progress-fill"></div>
-        </div>
-
-        <div class="page-indicator" id="page-indicator" aria-live="polite">
-          <span class="current-page" id="page-current">01</span>
-          <span> / 02</span>
-        </div>
-      </div>
-    </main>
-
-    <!-- Discreet Top-Right Image Customizer & Drag-and-Drop Switcher -->
-    <aside class="top-right-tools" id="top-right-tools">
-      <button
-        type="button"
-        class="tools-trigger"
-        id="tools-trigger"
-        aria-expanded="false"
-        aria-controls="tools-panel"
+  <body>
+    <!-- Top Section Switcher -->
+    <nav class="section-switcher" aria-label="Section Navigation">
+      <a
+        href="#portfolio-section"
+        class="section-nav-btn active"
+        id="nav-portfolio-btn"
       >
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <circle cx="8.5" cy="8.5" r="1.5"></circle>
-          <polyline points="21 15 16 10 5 21"></polyline>
-        </svg>
-        <span>Custom Slides</span>
-      </button>
+        01 · Device Mockup Showcase
+      </a>
+      <a
+        href="#lumina-section"
+        class="section-nav-btn"
+        id="nav-lumina-btn"
+      >
+        02 · Lumina Lens Slider
+      </a>
+    </nav>
 
-      <div class="tools-panel" id="tools-panel" role="region" aria-label="Local Slide Image Switcher">
-        <div class="tools-panel-header">
-          <span>Local Slide Assets</span>
-          <span style="font-weight: 400; color: rgba(255, 255, 255, 0.45)">16:9 Cover</span>
-        </div>
-
-        <label class="drop-slot" id="drop-slot-1">
-          <span>Slide 01 (Lumina)</span>
-          <span class="drop-slot-meta" id="slot-1-name">./slide1.jpg</span>
-          <input type="file" id="file-input-1" accept="image/*" aria-label="Upload Slide 1 Image" />
-        </label>
-
-        <label class="drop-slot" id="drop-slot-2">
-          <span>Slide 02 (Rose Mirage)</span>
-          <span class="drop-slot-meta" id="slot-2-name">./slide2.jpg</span>
-          <input type="file" id="file-input-2" accept="image/*" aria-label="Upload Slide 2 Image" />
-        </label>
-
-        <div class="tools-actions">
-          <button type="button" class="tool-action-btn" id="swap-slides-btn">
-            Swap Slide 1 ⇄ 2
-          </button>
-          <button type="button" class="tool-action-btn" id="reset-slides-btn">
-            Reset Default
-          </button>
-        </div>
-
-        <p class="tools-hint">
-          Tip: You can also drag &amp; drop image files anywhere onto the screen to replace slides live.
-        </p>
-      </div>
-    </aside>
-
-    <!-- Full-Window Drag & Drop Visual Cue -->
-    <div class="window-drop-indicator" id="window-drop-indicator" aria-hidden="true">
-      <span>Drop image(s) to update WebGL slide texture</span>
-    </div>
-
-    <!-- Product Detail Modal for SHOP NOW CTA -->
-    <div
-      class="product-modal-backdrop"
-      id="product-modal-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
+    <!-- ========================================================================
+         SECTION 1 (TOP PAGE): CONTINUOUS 3D ORBITAL WHEEL SCROLL/DRAG (VIDEO 2)
+         ======================================================================== -->
+    <section
+      class="portfolio-section"
+      id="portfolio-section"
+      aria-label="Interactive Project Mockup Showcase"
     >
-      <div class="product-modal" id="product-modal">
-        <div class="product-modal-kicker" id="modal-kicker">COLLECTION 01 / 02</div>
-        <h2 class="product-modal-title" id="modal-title">Lumina Slider</h2>
-        <p class="product-modal-desc" id="modal-desc">
-          A soft, radiant light that illuminates the soul. Precision polycarbonate shield visor with warm spectral tinting and aerodynamic temple geometry.
-        </p>
-        <div class="product-modal-meta">
-          <span>Edition Availability</span>
-          <span id="modal-price">$420 USD · In Stock</span>
-        </div>
-        <div class="product-modal-actions">
-          <button type="button" class="btn-primary" id="modal-reserve-btn">
-            Reserve Piece
+      <!-- Continuous Orbital Wheel Track (Drag, Scroll, or Click Mockups) -->
+      <div
+        class="orbital-wheel-stage"
+        id="orbital-wheel-stage"
+        data-testid="portfolio-orbital-stage"
+        role="region"
+        aria-label="Orbital Device Mockup Track"
+      ></div>
+
+      <!-- Separate High Z-Index HTML Layer (z-index: 25) -->
+      <div class="portfolio-ui" id="portfolio-ui">
+        <!-- Left Side: Page Number, Project Title, Subtitle, View Project Button -->
+        <div class="portfolio-left" id="portfolio-left">
+          <div class="portfolio-page-counter" id="portfolio-page-counter">
+            <span id="proj-page-num">01</span>
+            <span class="total">/ 08</span>
+          </div>
+          <h2 class="portfolio-title" id="proj-title">INSTAPRESISI</h2>
+          <p class="portfolio-subtitle" id="proj-subtitle">
+            Electric Fence IoT &amp; High-Voltage Telemetry
+          </p>
+          <p class="portfolio-device-meta" id="proj-device-meta">
+            iPhone 16 Pro Frame · Real-time Telemetry UI
+          </p>
+          <button type="button" class="view-project-btn" id="view-project-btn">
+            <span class="label-underline">View project</span>
+            <span aria-hidden="true">→</span>
           </button>
-          <button type="button" class="btn-secondary" id="modal-close-btn">
-            Close
+        </div>
+
+        <!-- Right Side: Technology Stack Badges Grid -->
+        <div class="portfolio-right" id="portfolio-right">
+          <div class="tech-grid-label">TECHNOLOGY STACK</div>
+          <div class="tech-badges-grid" id="tech-badges-grid" role="list">
+            <!-- Populated dynamically per slide -->
+          </div>
+        </div>
+
+        <!-- Bottom Center: Interactive "DRAG THE WHEEL" Controller -->
+        <div class="portfolio-bottom">
+          <div class="wheel-control-wrapper">
+            <div class="wheel-center-dot" aria-hidden="true"></div>
+            <div class="wheel-bar-row">
+              <button
+                type="button"
+                class="wheel-nav-arrow"
+                id="wheel-prev-btn"
+                aria-label="Previous Project"
+              >
+                ←
+              </button>
+              <div
+                class="wheel-cylinder"
+                id="wheel-cylinder"
+                role="slider"
+                tabindex="0"
+                aria-label="Drag the wheel to scroll projects"
+                aria-valuemin="1"
+                aria-valuemax="8"
+                aria-valuenow="1"
+              >
+                <div class="wheel-ridges" id="wheel-ridges"></div>
+              </div>
+              <button
+                type="button"
+                class="wheel-nav-arrow"
+                id="wheel-next-btn"
+                aria-label="Next Project"
+              >
+                →
+              </button>
+            </div>
+            <div class="wheel-meta-row">
+              <span class="wheel-sound-badge" title="Interactive Wheel Active">|||</span>
+              <span>DRAG THE WHEEL</span>
+              <span id="wheel-index-readout">01/08</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expanded Project Detail View (Matches 00:02 & 00:07 of Video 2) -->
+      <div
+        class="project-detail-drawer"
+        id="project-detail-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="detail-title"
+      >
+        <div class="detail-left-column">
+          <div class="detail-bottom-nav">
+            <div class="detail-thumbs-row" id="detail-thumbs-row">
+              <!-- Populated dynamically with all 8 project thumbnails -->
+            </div>
+            <div class="detail-pager-controls">
+              <button
+                type="button"
+                class="detail-circle-btn"
+                id="detail-prev-btn"
+                aria-label="Previous Project Detail"
+              >
+                ←
+              </button>
+              <span
+                style="
+                  font-family: 'JetBrains Mono', monospace;
+                  font-size: 0.76rem;
+                  font-weight: 600;
+                "
+                id="detail-counter"
+              >
+                01 / 08
+              </span>
+              <button
+                type="button"
+                class="detail-circle-btn"
+                id="detail-next-btn"
+                aria-label="Next Project Detail"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-right-column">
+          <button type="button" class="detail-close-top" id="detail-close-top">
+            ✕ Back to Wheel
+          </button>
+          <h3 class="detail-title" id="detail-title">INSTAPRESISI</h3>
+          <p class="detail-subtitle" id="detail-subtitle">
+            Electric Fence IoT &amp; High-Voltage Telemetry
+          </p>
+          <p class="detail-description" id="detail-description">
+            Sistem pemantauan pagar listrik bertegangan tinggi berbasis IoT secara real-time.
+          </p>
+          <div class="tech-grid-label">ARCHITECTURE &amp; MODULES</div>
+          <div class="tech-badges-grid" id="detail-tech-grid"></div>
+          <button type="button" class="detail-cta-pill" id="detail-cta-pill">
+            Select project module
+          </button>
+          <button type="button" class="detail-back-link" id="detail-back-link">
+            View full details →
           </button>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- ========================================================================
+         SECTION 2 (BOTTOM PAGE): LUMINA & ROSE MIRAGE EDITORIAL LENS SLIDER
+         ======================================================================== -->
+    <section
+      class="lumina-section"
+      id="lumina-section"
+      aria-label="Lumina and Rose Mirage WebGL Slider"
+    >
+      <div
+        id="webgl-container"
+        data-testid="webgl-slider-canvas"
+        role="button"
+        tabindex="0"
+        aria-label="Next slide transition"
+      ></div>
+
+      <div class="vignette-scrim" aria-hidden="true"></div>
+
+      <div class="slider-ui">
+        <div class="slide-content" id="slide-content">
+          <h1 class="slide-title" id="slide-title">Lumina Slider</h1>
+          <p class="slide-desc" id="slide-desc">
+            A soft, radiant light that illuminates the soul.
+          </p>
+          <button type="button" class="shop-now-btn" id="shop-now-btn">
+            SHOP NOW
+          </button>
+        </div>
+
+        <div class="slider-bottom-bar">
+          <div
+            class="progress-track"
+            id="progress-track"
+            role="progressbar"
+            aria-valuemin="1"
+            aria-valuemax="2"
+            aria-valuenow="1"
+            aria-label="Slide Progress"
+          >
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+
+          <div class="page-indicator" id="page-indicator" aria-live="polite">
+            <span class="current-page" id="page-current">01</span>
+            <span> / 02</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="top-right-tools" id="top-right-tools">
+        <button
+          type="button"
+          class="tools-trigger"
+          id="tools-trigger"
+          aria-expanded="false"
+          aria-controls="tools-panel"
+        >
+          <span>Custom Slides</span>
+        </button>
+
+        <div
+          class="tools-panel"
+          id="tools-panel"
+          role="region"
+          aria-label="Local Slide Image Switcher"
+        >
+          <div class="tools-panel-header">
+            <span>Local Slide Assets</span>
+            <span style="font-weight: 400; color: rgba(255, 255, 255, 0.45)">16:9 Cover</span>
+          </div>
+
+          <label class="drop-slot" id="drop-slot-1">
+            <span>Slide 01 (Lumina)</span>
+            <span class="drop-slot-meta" id="slot-1-name">./slide1.jpg</span>
+            <input
+              type="file"
+              id="file-input-1"
+              accept="image/*"
+              aria-label="Upload Slide 1 Image"
+            />
+          </label>
+
+          <label class="drop-slot" id="drop-slot-2">
+            <span>Slide 02 (Rose Mirage)</span>
+            <span class="drop-slot-meta" id="slot-2-name">./slide2.jpg</span>
+            <input
+              type="file"
+              id="file-input-2"
+              accept="image/*"
+              aria-label="Upload Slide 2 Image"
+            />
+          </label>
+
+          <div class="tools-actions">
+            <button type="button" class="tool-action-btn" id="swap-slides-btn">
+              Swap Slide 1 ⇄ 2
+            </button>
+            <button type="button" class="tool-action-btn" id="reset-slides-btn">
+              Reset Default
+            </button>
+          </div>
+        </div>
+      </aside>
+    </section>
 
     <script>
       (function () {
         'use strict';
 
         // ============================================================================
-        // 1. SLIDE DATA & STATE
+        // PART A: SECTION 1 — CONTINUOUS 3D ORBITAL WHEEL SCROLL/DRAG (VIDEO 2)
+        // No bubble effect — devices physically glide along the diagonal orbital arch
+        // when dragging the wheel, scrolling, clicking arrows, or clicking a device.
         // ============================================================================
-        const SLIDES = [
+        const PROJECTS = [
           {
-            index: 0,
-            pageNumber: '01',
-            title: 'Lumina Slider',
-            description: 'A soft, radiant light that illuminates the soul.',
-            modalDetail:
-              'A soft, radiant light that illuminates the soul. Precision optical shield eyewear engineered with warm amber refraction and ultra-lightweight frame architecture.',
-            price: '$420 USD · Limited Run',
-            defaultSrc: './slide1.jpg',
+            id: 0,
+            num: '01',
+            title: 'INSTAPRESISI',
+            subtitle: 'Electric Fence IoT & High-Voltage Telemetry',
+            deviceMeta: 'iPhone 16 Pro Mockup · Real-time IoT Dashboard',
+            src: './project1.png',
+            fallbackSrc: '/assets/aistudio/INSTAPRESISI_d373e4e0.png',
+            aspectType: 'phone',
+            baseW: 360,
+            baseH: 520,
+            tech: [
+              'React Native',
+              'TypeScript',
+              'IoT MQTT',
+              'Tailwind',
+              'ESP32',
+              'Firebase',
+              'WebSockets',
+              'PWA',
+            ],
+            description:
+              'Sistem pemantauan pagar listrik bertegangan tinggi berbasis IoT secara real-time. Menampilkan status energizer aktif, arus input presisi (0.892 A), peringatan Pulse Lost, dan sinkronisasi satelit GPS.',
           },
           {
-            index: 1,
-            pageNumber: '02',
-            title: 'Rose Mirage',
-            description: 'Lost in a desert of blooming dreams and endless horizons.',
-            modalDetail:
-              'Lost in a desert of blooming dreams and endless horizons. High-altitude thermal down outerwear paired with polarized chromatic horizon goggles.',
-            price: '$680 USD · Archive Edition',
-            defaultSrc: './slide2.jpg',
+            id: 1,
+            num: '02',
+            title: 'SIRAMKU IOT',
+            subtitle: 'Smart Hydroponic Sensor & Water Analytics',
+            deviceMeta: 'iPhone 16 Pro Mockup · Smart Agriculture UI',
+            src: './project2.png',
+            fallbackSrc: '/assets/aistudio/SIRAMKU_bef1e8ac.png',
+            aspectType: 'phone',
+            baseW: 360,
+            baseH: 520,
+            tech: [
+              'React',
+              'TypeScript',
+              'Tailwind',
+              'Chart.js',
+              'IoT Sensor',
+              'PWA',
+              'Node.js',
+              'REST API',
+            ],
+            description:
+              'Aplikasi pintar pemantauan kebun hidroponik dengan sensor TDS (ppm) dan indikator level air otomatis. Dilengkapi visualisasi grafik riwayat nutrisi mingguan dan bulanan.',
+          },
+          {
+            id: 2,
+            num: '03',
+            title: 'PINTER SARPRAS',
+            subtitle: 'Campus Room & Projector Booking Platform',
+            deviceMeta: 'MacBook Pro 16" Mockup · Web Admin Portal',
+            src: './project3.png',
+            fallbackSrc: '/assets/aistudio/SARPRAS_004b9e76.png',
+            aspectType: 'laptop',
+            baseW: 540,
+            baseH: 400,
+            tech: [
+              'React',
+              'TypeScript',
+              'Tailwind',
+              'Laravel',
+              'MySQL',
+              'GSAP',
+              'REST API',
+              'Vite',
+            ],
+            description:
+              'Dashboard manajemen peminjaman sarana dan prasarana perkuliahan terpadu. Memudahkan pengajuan ruangan dan proyektor, pemantauan kalender akademik, serta persetujuan real-time.',
+          },
+          {
+            id: 3,
+            num: '04',
+            title: 'MIE PRIK ECOM',
+            subtitle: 'Spicy Noodle E-Commerce & Gamified Ordering',
+            deviceMeta: 'iPad Pro Mockup · Interactive F&B Storefront',
+            src: './project4.png',
+            fallbackSrc: '/assets/aistudio/mieprik-ecom_57dab492.png',
+            aspectType: 'tablet',
+            baseW: 500,
+            baseH: 390,
+            tech: [
+              'Next.js',
+              'TypeScript',
+              'Tailwind',
+              'GSAP',
+              'Prisma',
+              'PostgreSQL',
+              'PWA',
+              'Midtrans',
+            ],
+            description:
+              'Platform e-commerce kuliner Nusantara dengan fitur pemesanan interaktif, kustomisasi level pedas, leaderboard pelanggan mingguan, serta pelacakan pesanan langsung.',
+          },
+          {
+            id: 4,
+            num: '05',
+            title: 'MANDIRI NEWS',
+            subtitle: 'Financial & Global News Aggregator PWA',
+            deviceMeta: 'iPhone 16 Pro Mockup · Mobile Editorial Reader',
+            src: './project5.png',
+            fallbackSrc: '/assets/aistudio/berita-bankmandiri_4f240d1b.png',
+            aspectType: 'phone',
+            baseW: 360,
+            baseH: 520,
+            tech: [
+              'React',
+              'TypeScript',
+              'Tailwind',
+              'PWA',
+              'News API',
+              'Redux',
+              'Vite',
+              'Vercel',
+            ],
+            description:
+              'Portal agregator berita terkini yang menyajikan liputan ekonomi, otomotif, dan pasar global dengan antarmuka baca cepat serta dukungan akses offline PWA.',
+          },
+          {
+            id: 5,
+            num: '06',
+            title: 'SILUET MODEL',
+            subtitle: 'Interactive Runway Lookbook & Talent Academy',
+            deviceMeta: 'iPad Pro Mockup · Fashion Showcase Platform',
+            src: './project6.png',
+            fallbackSrc: '/assets/aistudio/sluetmodel_9b3c4a87.png',
+            aspectType: 'tablet',
+            baseW: 500,
+            baseH: 390,
+            tech: [
+              'React',
+              'Three.js',
+              'GSAP',
+              'Tailwind',
+              'TypeScript',
+              'WebGL',
+              'Framer',
+              'Vite',
+            ],
+            description:
+              'Katalog runway virtual dan akademi model interaktif. Pengguna dapat menjelajahi koleksi busana talenta muda, melihat spesifikasi koleksi, dan menjadwalkan booking.',
+          },
+          {
+            id: 6,
+            num: '07',
+            title: 'MUSEE STREAM',
+            subtitle: 'High-Fidelity Music Streaming & Audio PWA',
+            deviceMeta: 'iPhone 16 Pro Mockup · Music Player Interface',
+            src: './project7.png',
+            fallbackSrc: '/assets/aistudio/MUSEE_20c23e7c.png',
+            aspectType: 'phone',
+            baseW: 360,
+            baseH: 520,
+            tech: [
+              'React',
+              'TypeScript',
+              'PWA',
+              'Web Audio',
+              'Tailwind',
+              'GSAP',
+              'IndexedDB',
+              'Vite',
+            ],
+            description:
+              'Aplikasi pemutar musik progresif (PWA) dengan kurasi playlist personal (Daily Mix, Chill Vibes, Focus), pemutaran audio mulus, dan penyimpanan lagu favorit.',
+          },
+          {
+            id: 7,
+            num: '08',
+            title: 'SOLARMAP ID',
+            subtitle: 'Satellite Solar Potential GIS & Panel Calculator',
+            deviceMeta: 'iPad Pro Mockup · Renewable Energy GIS',
+            src: './project8.png',
+            fallbackSrc: '/assets/aistudio/SOLARMAP_16d78f76.png',
+            aspectType: 'tablet',
+            baseW: 500,
+            baseH: 390,
+            tech: [
+              'React',
+              'TypeScript',
+              'Leaflet GIS',
+              'Tailwind',
+              'Three.js',
+              'Chart.js',
+              'PWA',
+              'Vite',
+            ],
+            description:
+              'Platform pemetaan potensi energi surya berbasis data satelit di 34 provinsi Indonesia (42.800 GWh). Dilengkapi kalkulator estimasi biaya dan kebutuhan panel surya.',
           },
         ];
 
-        let currentSlideIndex = 0;
-        let isAnimating = false;
+        const N_PROJECTS = PROJECTS.length;
+        const portfolioSectionEl = document.getElementById('portfolio-section');
+        const orbitalStageEl = document.getElementById('orbital-wheel-stage');
+        const projPageNumEl = document.getElementById('proj-page-num');
+        const projTitleEl = document.getElementById('proj-title');
+        const projSubtitleEl = document.getElementById('proj-subtitle');
+        const projDeviceMetaEl = document.getElementById('proj-device-meta');
+        const techBadgesGridEl = document.getElementById('tech-badges-grid');
+        const wheelCylinderEl = document.getElementById('wheel-cylinder');
+        const wheelRidgesEl = document.getElementById('wheel-ridges');
+        const wheelReadoutEl = document.getElementById('wheel-index-readout');
+        const detailDrawer = document.getElementById('project-detail-drawer');
+        const detailTitleEl = document.getElementById('detail-title');
+        const detailSubtitleEl = document.getElementById('detail-subtitle');
+        const detailDescEl = document.getElementById('detail-description');
+        const detailTechGridEl = document.getElementById('detail-tech-grid');
+        const detailCounterEl = document.getElementById('detail-counter');
+        const detailThumbsRowEl = document.getElementById('detail-thumbs-row');
+        const leftCol = document.getElementById('portfolio-left');
+        const rightCol = document.getElementById('portfolio-right');
+
+        // Continuous wheel state: wheelState.pos can be any real number, wrapping modulo 8
+        const wheelState = {
+          pos: 0.0,
+          detailProgress: 0.0, // 0 = orbital wheel mode, 1 = expanded detail mode (like 00:02 in Video 2)
+        };
+        let activeProjIdx = 0;
+        let isDetailOpen = false;
+
+        // Create the 8 DOM orbital item nodes inside #orbital-wheel-stage
+        const orbitalNodes = PROJECTS.map(function (proj, idx) {
+          const itemEl = document.createElement('div');
+          itemEl.className = 'orbital-item';
+          itemEl.style.width = proj.baseW + 'px';
+          itemEl.style.height = proj.baseH + 'px';
+          itemEl.setAttribute('data-project-index', String(idx));
+
+          const imgEl = document.createElement('img');
+          imgEl.className = 'orbital-item-img';
+          imgEl.src = proj.src;
+          imgEl.alt = proj.title;
+          imgEl.referrerPolicy = 'no-referrer';
+          imgEl.onerror = function () {
+            if (imgEl.src !== proj.fallbackSrc) {
+              imgEl.src = proj.fallbackSrc;
+            }
+          };
+
+          const shadowEl = document.createElement('div');
+          shadowEl.className = 'orbital-item-shadow';
+
+          itemEl.appendChild(imgEl);
+          itemEl.appendChild(shadowEl);
+          orbitalStageEl.appendChild(itemEl);
+
+          return {
+            el: itemEl,
+            img: imgEl,
+            proj: proj,
+            index: idx,
+          };
+        });
+
+        // Keyframes along the curved diagonal orbital arch (matching Video 2's exact trajectory):
+        // t = -2: Bottom center right behind/under the wheel bar (like the blue shoe at 00:00 in Video 2)
+        // t = -1: Lower-center below the hero item
+        // t =  0: Main Center Hero item (largest, highest z-index)
+        // t = +1: Upper-right behind hero
+        // t = +2: Further right along the arch
+        // t = +3: Far right viewport edge
+        const ORBIT_KEYFRAMES = [
+          { t: -3.0, rx: -0.14, ry: 0.52, scale: 0.22, opacity: 0.0 },
+          { t: -2.0, rx: -0.055, ry: 0.365, scale: 0.34, opacity: 0.92 },
+          { t: -1.0, rx: -0.015, ry: 0.155, scale: 0.56, opacity: 0.98 },
+          { t: 0.0, rx: 0.075, ry: -0.065, scale: 1.0, opacity: 1.0 },
+          { t: 1.0, rx: 0.225, ry: -0.22, scale: 0.65, opacity: 0.98 },
+          { t: 2.0, rx: 0.365, ry: -0.21, scale: 0.38, opacity: 0.92 },
+          { t: 3.0, rx: 0.485, ry: -0.11, scale: 0.3, opacity: 0.85 },
+          { t: 4.0, rx: 0.58, ry: 0.02, scale: 0.22, opacity: 0.0 },
+        ];
+
+        function sampleOrbitalCurve(t) {
+          if (t <= ORBIT_KEYFRAMES[0].t) return ORBIT_KEYFRAMES[0];
+          if (t >= ORBIT_KEYFRAMES[ORBIT_KEYFRAMES.length - 1].t) {
+            return ORBIT_KEYFRAMES[ORBIT_KEYFRAMES.length - 1];
+          }
+
+          for (let i = 0; i < ORBIT_KEYFRAMES.length - 1; i++) {
+            const k0 = ORBIT_KEYFRAMES[i];
+            const k1 = ORBIT_KEYFRAMES[i + 1];
+            if (t >= k0.t && t <= k1.t) {
+              const u = (t - k0.t) / (k1.t - k0.t);
+              // Smooth hermite interpolation for organic curved motion
+              const su = u * u * (3 - 2 * u);
+              return {
+                rx: k0.rx + (k1.rx - k0.rx) * su,
+                ry: k0.ry + (k1.ry - k0.ry) * su,
+                scale: k0.scale + (k1.scale - k0.scale) * su,
+                opacity: k0.opacity + (k1.opacity - k0.opacity) * u,
+              };
+            }
+          }
+          return ORBIT_KEYFRAMES[3];
+        }
+
+        // Shortest signed distance on the circular ring of 8 projects: returns value in [-4, +4)
+        function getWrappedOffset(itemIdx, wheelPos) {
+          let diff = (itemIdx - wheelPos) % N_PROJECTS;
+          if (diff < -N_PROJECTS / 2) diff += N_PROJECTS;
+          if (diff >= N_PROJECTS / 2) diff -= N_PROJECTS;
+          return diff;
+        }
+
+        function normalizeIndex(idx) {
+          return ((Math.round(idx) % N_PROJECTS) + N_PROJECTS) % N_PROJECTS;
+        }
+
+        // Renders all 8 device mockups along the continuous orbital curve every frame
+        function renderOrbitalWheel() {
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+          const responsiveScale = Math.min(Math.max(vw / 1440, 0.58), 1.15);
+          const dp = wheelState.detailProgress;
+
+          // Update metallic wheel ridge position continuously as wheel rotates
+          wheelRidgesEl.style.backgroundPositionX =
+            (-wheelState.pos * 54).toFixed(1) + 'px';
+
+          orbitalNodes.forEach(function (node) {
+            const offset = getWrappedOffset(node.index, wheelState.pos);
+            const curve = sampleOrbitalCurve(offset);
+
+            // Base orbital position in pixels relative to viewport center
+            let x = curve.rx * vw;
+            let y = curve.ry * vh;
+            let sc = curve.scale * responsiveScale;
+            let op = curve.opacity;
+
+            // If transitioning into or inside "View project" Detail Mode (like 00:02 in Video 2):
+            // The active item (offset ~ 0) glides smoothly to the left side (-0.23 * vw, -0.04 * vh)
+            // while all other orbital items slide outward along the track and fade out
+            if (dp > 0.001) {
+              if (Math.abs(offset) < 0.45) {
+                const targetX = -0.22 * vw;
+                const targetY = -0.04 * vh;
+                const targetScale = 0.96 * responsiveScale;
+                x = x + (targetX - x) * dp;
+                y = y + (targetY - y) * dp;
+                sc = sc + (targetScale - sc) * dp;
+              } else {
+                const pushDir = offset > 0 ? 1 : -1;
+                x += pushDir * dp * 180;
+                y += (offset < 0 ? 1 : -0.5) * dp * 120;
+                op *= Math.max(0, 1 - dp * 1.35);
+              }
+            }
+
+            // Z-index is highest at offset = 0 (Hero item overlaps both -1 and +1 just like Video 2)
+            const zOrder = Math.round(100 - Math.abs(offset) * 22);
+            node.el.style.zIndex = String(zOrder);
+
+            if (op <= 0.01) {
+              node.el.style.opacity = '0';
+              node.el.style.pointerEvents = 'none';
+            } else {
+              node.el.style.opacity = op.toFixed(3);
+              node.el.style.pointerEvents = dp > 0.5 ? 'none' : 'auto';
+              node.el.style.transform =
+                'translate3d(calc(-50% + ' +
+                x.toFixed(1) +
+                'px), calc(-50% + ' +
+                y.toFixed(1) +
+                'px), 0) scale(' +
+                sc.toFixed(4) +
+                ')';
+            }
+          });
+
+          // Check if the nearest integer project index changed during scroll/drag
+          const nearestIdx = normalizeIndex(wheelState.pos);
+          if (nearestIdx !== activeProjIdx) {
+            activeProjIdx = nearestIdx;
+            animateProjectTextChange(activeProjIdx);
+          }
+        }
+
+        function renderTechBadges(containerEl, techList) {
+          containerEl.innerHTML = '';
+          techList.forEach(function (label, i) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'tech-badge-box' + (i === 0 ? ' selected' : '');
+            btn.textContent = label;
+            btn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              Array.from(containerEl.children).forEach(function (c) {
+                c.classList.remove('selected');
+              });
+              btn.classList.add('selected');
+            });
+            containerEl.appendChild(btn);
+          });
+        }
+
+        function updateProjectDomImmediate(projIdx) {
+          const p = PROJECTS[projIdx];
+          projPageNumEl.textContent = p.num;
+          projTitleEl.textContent = p.title;
+          projSubtitleEl.textContent = p.subtitle;
+          projDeviceMetaEl.textContent = p.deviceMeta;
+          wheelCylinderEl.setAttribute('aria-valuenow', String(projIdx + 1));
+          if (wheelReadoutEl) wheelReadoutEl.textContent = p.num + '/08';
+          renderTechBadges(techBadgesGridEl, p.tech);
+          updateDetailDrawerContent(projIdx);
+        }
+
+        function animateProjectTextChange(projIdx) {
+          gsap.killTweensOf([leftCol, rightCol]);
+          gsap.to([leftCol, rightCol], {
+            opacity: 0,
+            y: -6,
+            duration: 0.16,
+            ease: 'power2.in',
+            onComplete: function () {
+              updateProjectDomImmediate(projIdx);
+              gsap.fromTo(
+                [leftCol, rightCol],
+                { opacity: 0, y: 8 },
+                { opacity: 1, y: 0, duration: 0.34, ease: 'power2.out' }
+              );
+            },
+          });
+        }
+
+        // Smoothly scroll/glide the orbital wheel to a target position (supports multi-step scrolling)
+        function scrollToWheelPos(targetPos, duration) {
+          gsap.killTweensOf(wheelState, 'pos');
+          gsap.to(wheelState, {
+            pos: targetPos,
+            duration: duration || 0.85,
+            ease: 'power3.out',
+            onUpdate: renderOrbitalWheel,
+          });
+        }
+
+        function stepProject(delta) {
+          const target = Math.round(wheelState.pos) + delta;
+          scrollToWheelPos(target, 0.85);
+        }
+
+        function scrollToProjectIndex(targetIdx) {
+          const diff = getWrappedOffset(targetIdx, wheelState.pos);
+          if (Math.abs(diff) < 0.001) return;
+          scrollToWheelPos(wheelState.pos + diff, 0.9);
+        }
+
+        // Click on any device mockup on the orbital stage:
+        // If it's an upcoming/previous mockup (offset != 0), scroll the wheel to bring it to center!
+        // If it's already the center hero mockup (offset == 0), advance to next project (+1).
+        orbitalNodes.forEach(function (node) {
+          node.el.addEventListener('click', function (e) {
+            if (hasDraggedStage) return;
+            e.stopPropagation();
+            const offset = getWrappedOffset(node.index, wheelState.pos);
+            if (Math.abs(offset) < 0.25) {
+              stepProject(1);
+            } else {
+              scrollToWheelPos( Math.round(wheelState.pos + offset), 0.88 );
+            }
+          });
+        });
+
+        // Drag directly on the orbital stage OR drag on the bottom "DRAG THE WHEEL" cylinder
+        let isDraggingStage = false;
+        let hasDraggedStage = false;
+        let dragStartX = 0;
+        let dragStartPos = 0;
+
+        orbitalStageEl.addEventListener('pointerdown', function (e) {
+          if (isDetailOpen) return;
+          isDraggingStage = true;
+          hasDraggedStage = false;
+          dragStartX = e.clientX;
+          dragStartPos = wheelState.pos;
+          gsap.killTweensOf(wheelState, 'pos');
+        });
+
+        window.addEventListener('pointermove', function (e) {
+          if (!isDraggingStage) return;
+          const dx = e.clientX - dragStartX;
+          if (Math.abs(dx) > 6) hasDraggedStage = true;
+          // Dragging left advances wheel forward (+pos), dragging right moves wheel backward (-pos)
+          wheelState.pos = dragStartPos - dx / 220;
+          renderOrbitalWheel();
+        });
+
+        window.addEventListener('pointerup', function () {
+          if (!isDraggingStage) return;
+          isDraggingStage = false;
+          // Snap smoothly to nearest project on release
+          scrollToWheelPos(Math.round(wheelState.pos), 0.65);
+          setTimeout(function () {
+            hasDraggedStage = false;
+          }, 50);
+        });
+
+        // Interactive Drag on "DRAG THE WHEEL" Cylinder
+        let isDraggingCylinder = false;
+        let cylStartX = 0;
+        let cylStartPos = 0;
+
+        wheelCylinderEl.addEventListener('pointerdown', function (e) {
+          e.stopPropagation();
+          isDraggingCylinder = true;
+          cylStartX = e.clientX;
+          cylStartPos = wheelState.pos;
+          wheelCylinderEl.setPointerCapture(e.pointerId);
+          gsap.killTweensOf(wheelState, 'pos');
+        });
+
+        wheelCylinderEl.addEventListener('pointermove', function (e) {
+          if (!isDraggingCylinder) return;
+          const dx = e.clientX - cylStartX;
+          wheelState.pos = cylStartPos - dx / 95;
+          renderOrbitalWheel();
+        });
+
+        wheelCylinderEl.addEventListener('pointerup', function (e) {
+          if (!isDraggingCylinder) return;
+          const dx = e.clientX - cylStartX;
+          isDraggingCylinder = false;
+          if (Math.abs(dx) < 6) {
+            stepProject(1);
+          } else {
+            scrollToWheelPos(Math.round(wheelState.pos), 0.65);
+          }
+        });
+
+        // Horizontal trackpad/wheel scroll on the orbital showcase
+        let wheelCooldown = false;
+        portfolioSectionEl.addEventListener(
+          'wheel',
+          function (e) {
+            if (isDetailOpen) return;
+            // Allow horizontal scroll or shift+wheel to spin the orbital wheel
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 8) {
+              e.preventDefault();
+              if (!wheelCooldown) {
+                wheelCooldown = true;
+                stepProject(e.deltaX > 0 ? 1 : -1);
+                setTimeout(function () {
+                  wheelCooldown = false;
+                }, 420);
+              }
+            }
+          },
+          { passive: false }
+        );
+
+        document
+          .getElementById('wheel-prev-btn')
+          .addEventListener('click', function (e) {
+            e.stopPropagation();
+            stepProject(-1);
+          });
+
+        document
+          .getElementById('wheel-next-btn')
+          .addEventListener('click', function (e) {
+            e.stopPropagation();
+            stepProject(1);
+          });
+
+        // Build thumbnail buttons in detail view (matching bottom-left of Video 2 at 00:02 & 00:07)
+        PROJECTS.forEach(function (p, idx) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'detail-thumb-btn' + (idx === 0 ? ' active' : '');
+          btn.setAttribute('aria-label', 'Select ' + p.title);
+          const im = document.createElement('img');
+          im.src = p.src;
+          im.alt = p.title;
+          im.onerror = function () {
+            if (im.src !== p.fallbackSrc) im.src = p.fallbackSrc;
+          };
+          btn.appendChild(im);
+          btn.addEventListener('click', function () {
+            scrollToProjectIndex(idx);
+            updateDetailDrawerContent(idx);
+          });
+          detailThumbsRowEl.appendChild(btn);
+        });
+
+        function updateDetailDrawerContent(idx) {
+          const p = PROJECTS[idx];
+          detailTitleEl.textContent = p.title;
+          detailSubtitleEl.textContent = p.subtitle;
+          detailDescEl.textContent = p.description;
+          detailCounterEl.textContent = p.num + ' / 08';
+          renderTechBadges(detailTechGridEl, p.tech);
+
+          Array.from(detailThumbsRowEl.children).forEach(function (thumb, i) {
+            thumb.classList.toggle('active', i === idx);
+          });
+        }
+
+        function openDetailDrawer() {
+          isDetailOpen = true;
+          updateDetailDrawerContent(activeProjIdx);
+          portfolioSectionEl.classList.add('detail-mode');
+          detailDrawer.classList.add('open');
+          gsap.to(wheelState, {
+            detailProgress: 1.0,
+            pos: Math.round(wheelState.pos),
+            duration: 0.75,
+            ease: 'power3.inOut',
+            onUpdate: renderOrbitalWheel,
+          });
+        }
+
+        function closeDetailDrawer() {
+          if (!isDetailOpen) return;
+          isDetailOpen = false;
+          portfolioSectionEl.classList.remove('detail-mode');
+          detailDrawer.classList.remove('open');
+          gsap.to(wheelState, {
+            detailProgress: 0.0,
+            duration: 0.75,
+            ease: 'power3.inOut',
+            onUpdate: renderOrbitalWheel,
+          });
+        }
+
+        document
+          .getElementById('view-project-btn')
+          .addEventListener('click', function (e) {
+            e.stopPropagation();
+            openDetailDrawer();
+          });
+
+        document
+          .getElementById('detail-close-top')
+          .addEventListener('click', closeDetailDrawer);
+        document
+          .getElementById('detail-back-link')
+          .addEventListener('click', closeDetailDrawer);
+        document
+          .getElementById('detail-cta-pill')
+          .addEventListener('click', closeDetailDrawer);
+
+        document
+          .getElementById('detail-prev-btn')
+          .addEventListener('click', function () {
+            stepProject(-1);
+          });
+
+        document
+          .getElementById('detail-next-btn')
+          .addEventListener('click', function () {
+            stepProject(1);
+          });
+
+        // Initialize Section 1 Orbital Wheel
+        updateProjectDomImmediate(0);
+        renderOrbitalWheel();
 
         // ============================================================================
-        // 2. CUSTOM GLSL VERTEX & FRAGMENT SHADERS
+        // PART B: SECTION 2 — LUMINA & ROSE MIRAGE EDITORIAL LENS SLIDER
         // ============================================================================
-        const vertexShader = `
+        const sharedVertexShader = `
           varying vec2 vUv;
 
           void main() {
@@ -645,7 +1991,7 @@
           }
         `;
 
-        const fragmentShader = `
+        const luminaFragmentShader = `
           precision highp float;
 
           varying vec2 vUv;
@@ -657,7 +2003,6 @@
           uniform vec2 uTex2Res;
           uniform float uProgress;
 
-          // Calculates object-fit: cover UVs so 16:9 images always fill 100vw x 100vh without distortion
           vec2 getCoverUv(vec2 uv, vec2 screenRes, vec2 texRes) {
             float screenAspect = screenRes.x / max(screenRes.y, 1.0);
             float texAspect = texRes.x / max(texRes.y, 1.0);
@@ -670,7 +2015,6 @@
             return (uv - 0.5) * scale + 0.5;
           }
 
-          // Mirrored repeat + UV clamping to prevent black border glitches when sphere pulls edge pixels
           vec2 safeLensUv(vec2 uv) {
             vec2 mirrored = 1.0 - abs(1.0 - mod(abs(uv), 2.0));
             return clamp(mirrored, 0.001, 0.999);
@@ -681,7 +2025,6 @@
             float aspect = uResolution.x / max(uResolution.y, 1.0);
             vec2 aspectVec = vec2(aspect, 1.0);
 
-            // Undistorted cover UVs for current and next slide
             vec2 baseUv1 = clamp(getCoverUv(vUv, uResolution, uTex1Res), 0.0, 1.0);
             vec2 baseUv2 = clamp(getCoverUv(vUv, uResolution, uTex2Res), 0.0, 1.0);
             vec4 tex1 = texture2D(uTexture1, baseUv1);
@@ -697,25 +2040,18 @@
               return;
             }
 
-            // Global damping factor: pow(1.0 - uProgress, 1.8)
-            // Ensures all distortion, shadow, and chromatic aberration decay to 0% as the sphere fills the screen
             float damp = pow(clamp(1.0 - uProgress, 0.0, 1.0), 1.8);
-
-            // Exponential sphere expansion from center up to maxRadius = 2.9
             float expProgress = pow(uProgress, 1.5);
             float maxRadius = 2.9;
-            float radius = mix(0.02, maxRadius, expProgress);
+            float radius = mix(0.025, maxRadius, expProgress);
 
-            // Distance from screen center in aspect-corrected coordinates
             vec2 delta = vUv - center;
             vec2 aspectDelta = delta * aspectVec;
             float dist = length(aspectDelta);
 
-            // Soft optical outer edge for the sphere
             float edgeSoftness = 0.005 + 0.010 * uProgress;
             float sphereMask = 1.0 - smoothstep(radius - edgeSoftness, radius + edgeSoftness, dist);
 
-            // Outside the sphere: crisp current image with a subtle dark ambient shadow hugging the sphere rim
             float outerShadow = mix(1.0 - 0.26 * damp, 1.0, smoothstep(radius, radius + 0.06, dist));
             vec3 outsideColor = tex1.rgb * outerShadow;
 
@@ -724,24 +2060,17 @@
               return;
             }
 
-            // Inside the sphere (dist < radius):
-            // 3D Spherical projection: z = sqrt(1.0 - r*r)
             float r = clamp(dist / max(radius, 0.0001), 0.0, 1.0);
             vec2 normXY = (dist > 0.0001) ? (aspectDelta / dist) * r : vec2(0.0);
             float z = sqrt(max(0.0, 1.0 - r * r));
             vec3 sphereNormal = normalize(vec3(normXY, max(z, 0.001)));
 
-            // Dark Optical Glass & Liquid Pinch Distortion:
-            // Center of sphere (z=1) magnifies slightly; towards rim (z->0), convex curvature
-            // pulls surrounding scene details inward along the 3D sphere normal with a subtle liquid wave
             float liquidWave = sin(r * 9.0 - uProgress * 5.5) * 0.022 * (1.0 - z) * r;
             float convexCurve = -0.18 * z + 0.46 * pow(1.0 - z, 1.35) + liquidWave;
 
-            // Total UV refraction offset damped by pow(1.0 - uProgress, 1.8)
             vec2 refractionOffset = delta * convexCurve * damp;
             vec2 distortedUv = vUv + refractionOffset;
 
-            // Tight, anti-ghosting Chromatic Aberration (max 0.012 to 0.018 at the Fresnel rim)
             float fresnel = pow(1.0 - z, 1.8);
             float caAmount = (0.003 + 0.015 * fresnel) * damp;
             vec2 caOffset = (sphereNormal.xy / aspectVec) * caAmount;
@@ -750,105 +2079,80 @@
             vec2 uvG = safeLensUv(getCoverUv(distortedUv, uResolution, uTex2Res));
             vec2 uvB = safeLensUv(getCoverUv(distortedUv - caOffset, uResolution, uTex2Res));
 
-            // Pure texture color sampling (no artificial neon rainbow overlay)
             float colR = texture2D(uTexture2, uvR).r;
             float colG = texture2D(uTexture2, uvG).g;
             float colB = texture2D(uTexture2, uvB).b;
             vec3 lensColor = vec3(colR, colG, colB);
 
-            // Subtle inner dark Fresnel shadow / vignette at the grazing rim for volumetric optical depth
-            float innerDarkVignette = mix(1.0, 0.62, pow(r, 3.8) * damp);
-            // Subtle optical glass rim specular highlight
+            float innerDarkVignette = mix(1.0, 0.62, pow(r, 3.6) * damp);
             vec3 lightDir = normalize(vec3(-0.35, 0.42, 0.84));
-            float glassSpec = pow(max(0.0, dot(sphereNormal, lightDir)), 28.0) * 0.06 * damp;
+            float glassSpec = pow(max(0.0, dot(sphereNormal, lightDir)), 26.0) * 0.07 * damp;
 
             vec3 insideColor = lensColor * innerDarkVignette + vec3(glassSpec);
-
-            // Composite sphere over background
             vec3 finalColor = mix(outsideColor, insideColor, sphereMask);
 
             gl_FragColor = vec4(finalColor, 1.0);
           }
         `;
 
-        // ============================================================================
-        // 3. THREE.JS SCENE, SOFTWARE-WEBGL GUARD & ON-DEMAND RENDERING
-        // ============================================================================
+        const SLIDES = [
+          {
+            index: 0,
+            pageNumber: '01',
+            title: 'Lumina Slider',
+            description: 'A soft, radiant light that illuminates the soul.',
+            defaultSrc: './slide1.jpg',
+          },
+          {
+            index: 1,
+            pageNumber: '02',
+            title: 'Rose Mirage',
+            description: 'Lost in a desert of blooming dreams and endless horizons.',
+            defaultSrc: './slide2.jpg',
+          },
+        ];
+
+        let currentSlideIndex = 0;
+        let isAnimating = false;
+
         const container = document.getElementById('webgl-container');
-
-        const isSoftwareGl = (function () {
-          try {
-            const probeCanvas = document.createElement('canvas');
-            const gl =
-              probeCanvas.getContext('webgl2') || probeCanvas.getContext('webgl');
-            if (!gl) return true;
-            const ext = gl.getExtension('WEBGL_debug_renderer_info');
-            const param = ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER;
-            const gpu = String(gl.getParameter(param));
-            const lose = gl.getExtension('WEBGL_lose_context');
-            if (lose) lose.loseContext();
-            return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
-          } catch (e) {
-            return false;
-          }
-        })();
-
         const scene = new THREE.Scene();
         const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
         const renderer = new THREE.WebGLRenderer({
-          antialias: !isSoftwareGl,
+          antialias: true,
           powerPreference: 'high-performance',
           alpha: false,
         });
-        renderer.setPixelRatio(
-          isSoftwareGl ? 1 : Math.min(window.devicePixelRatio || 1, 2)
-        );
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
-        // Procedural fallback texture generator if local image files are missing
         function createFallbackTexture(slideIdx) {
           const c = document.createElement('canvas');
           c.width = 1920;
           c.height = 1080;
           const ctx = c.getContext('2d');
-
+          const grad = ctx.createRadialGradient(960, 520, 100, 960, 540, 1100);
           if (slideIdx === 0) {
-            const grad = ctx.createRadialGradient(1050, 480, 80, 960, 540, 1100);
             grad.addColorStop(0, '#585c62');
-            grad.addColorStop(0.55, '#2b2e33');
             grad.addColorStop(1, '#121417');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 1920, 1080);
-
-            const streak = ctx.createLinearGradient(0, 380, 1200, 420);
-            streak.addColorStop(0, 'rgba(255, 90, 0, 0.05)');
-            streak.addColorStop(0.55, 'rgba(255, 115, 15, 0.85)');
-            streak.addColorStop(1, 'rgba(255, 165, 60, 0.0)');
-            ctx.fillStyle = streak;
-            ctx.fillRect(0, 290, 1220, 210);
           } else {
-            const grad = ctx.createRadialGradient(960, 520, 120, 960, 540, 1050);
             grad.addColorStop(0, '#2a41b8');
-            grad.addColorStop(0.6, '#101d6b');
             grad.addColorStop(1, '#050926');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 1920, 1080);
           }
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 1920, 1080);
 
           const tex = new THREE.CanvasTexture(c);
           tex.minFilter = THREE.LinearFilter;
           tex.magFilter = THREE.LinearFilter;
           tex.wrapS = THREE.MirroredRepeatWrapping;
           tex.wrapT = THREE.MirroredRepeatWrapping;
-          return { texture: tex, width: 1920, height: 1080 };
+          return tex;
         }
 
-        const slideTextures = [
-          createFallbackTexture(0).texture,
-          createFallbackTexture(1).texture,
-        ];
+        const slideTextures = [createFallbackTexture(0), createFallbackTexture(1)];
         const slideResolutions = [
           new THREE.Vector2(1920, 1080),
           new THREE.Vector2(1920, 1080),
@@ -865,75 +2169,33 @@
           uProgress: { value: 0.0 },
         };
 
-        const geometry = new THREE.PlaneGeometry(2, 2);
         const material = new THREE.ShaderMaterial({
-          vertexShader: vertexShader,
-          fragmentShader: fragmentShader,
+          vertexShader: sharedVertexShader,
+          fragmentShader: luminaFragmentShader,
           uniforms: uniforms,
           depthWrite: false,
           depthTest: false,
         });
 
-        const mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
+        scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
 
-        // On-demand render scheduler with software-WebGL fence pacing
-        let renderBusy = false;
-        let renderDirty = false;
-
-        function afterDraw(cb) {
-          const gl = renderer.getContext();
-          if (gl && typeof gl.fenceSync === 'function') {
-            const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
-            gl.flush();
-            const poll = function () {
-              const state = sync && gl.getSyncParameter(sync, gl.SYNC_STATUS);
-              if (state === gl.UNSIGNALED) {
-                window.setTimeout(poll, 4);
-              } else {
-                if (sync) gl.deleteSync(sync);
-                window.setTimeout(cb, 16);
-              }
-            };
-            window.setTimeout(poll, 4);
-          } else {
-            window.setTimeout(cb, 16);
-          }
+        function renderScene() {
+          renderer.render(scene, camera);
         }
 
-        function requestRender() {
-          if (!isSoftwareGl) {
-            renderer.render(scene, camera);
-            return;
-          }
-          if (renderBusy) {
-            renderDirty = true;
-            return;
-          }
-          renderBusy = true;
-          requestAnimationFrame(function () {
-            renderDirty = false;
-            renderer.render(scene, camera);
-            afterDraw(function () {
-              renderBusy = false;
-              if (renderDirty) requestRender();
-            });
-          });
-        }
-
-        // Sync active uniforms with slideTextures & slideResolutions
         function syncShaderTextures() {
           const nextIndex = (currentSlideIndex + 1) % SLIDES.length;
           uniforms.uTexture1.value = slideTextures[currentSlideIndex];
           uniforms.uTexture2.value = slideTextures[nextIndex];
           uniforms.uTex1Res.value.copy(slideResolutions[currentSlideIndex]);
           uniforms.uTex2Res.value.copy(slideResolutions[nextIndex]);
-          requestRender();
+          renderScene();
         }
 
-        // Load texture from URL or DataURL and store natural aspect ratio
         const textureLoader = new THREE.TextureLoader();
-        function loadSlideImage(slotIndex, url, labelName) {
+        textureLoader.setCrossOrigin('anonymous');
+
+        function loadSlideTexture(slotIndex, url, labelName) {
           textureLoader.load(
             url,
             function (tex) {
@@ -941,22 +2203,24 @@
               tex.magFilter = THREE.LinearFilter;
               tex.wrapS = THREE.MirroredRepeatWrapping;
               tex.wrapT = THREE.MirroredRepeatWrapping;
-              const img = tex.image;
-              const w = (img && (img.naturalWidth || img.width)) || 1920;
-              const h = (img && (img.naturalHeight || img.height)) || 1080;
+              tex.needsUpdate = true;
 
-              if (slideTextures[slotIndex]) {
-                slideTextures[slotIndex].dispose();
-              }
+              const imgW =
+                tex.image && tex.image.naturalWidth ? tex.image.naturalWidth : 1920;
+              const imgH =
+                tex.image && tex.image.naturalHeight ? tex.image.naturalHeight : 1080;
+
               slideTextures[slotIndex] = tex;
-              slideResolutions[slotIndex].set(w, h);
+              slideResolutions[slotIndex].set(imgW, imgH);
 
-              const slotLabel = document.getElementById(
+              const metaEl = document.getElementById(
                 slotIndex === 0 ? 'slot-1-name' : 'slot-2-name'
               );
-              if (slotLabel && labelName) {
-                slotLabel.textContent = labelName;
+              if (metaEl && labelName) {
+                metaEl.textContent =
+                  labelName + ' (' + imgW + '×' + imgH + ')';
               }
+
               syncShaderTextures();
             },
             undefined,
@@ -966,336 +2230,233 @@
           );
         }
 
-        // Load default ./slide1.jpg and ./slide2.jpg
-        loadSlideImage(0, SLIDES[0].defaultSrc, './slide1.jpg');
-        loadSlideImage(1, SLIDES[1].defaultSrc, './slide2.jpg');
-        requestRender();
+        loadSlideTexture(0, SLIDES[0].defaultSrc, './slide1.jpg');
+        loadSlideTexture(1, SLIDES[1].defaultSrc, './slide2.jpg');
 
-        // ============================================================================
-        // 4. SYNCHRONIZED GSAP + WEBGL SPHERICAL LENS TRANSITION
-        // ============================================================================
-        const titleEl = document.getElementById('slide-title');
-        const descEl = document.getElementById('slide-desc');
-        const shopBtnEl = document.getElementById('shop-now-btn');
-        const pageCurrentEl = document.getElementById('page-current');
+        const slideContentEl = document.getElementById('slide-content');
+        const slideTitleEl = document.getElementById('slide-title');
+        const slideDescEl = document.getElementById('slide-desc');
         const pageIndicatorEl = document.getElementById('page-indicator');
-        const progressTrackEl = document.getElementById('progress-track');
+        const pageCurrentEl = document.getElementById('page-current');
         const progressFillEl = document.getElementById('progress-fill');
+        const progressTrackEl = document.getElementById('progress-track');
 
         function triggerNextSlide() {
           if (isAnimating) return;
           isAnimating = true;
-          document.body.setAttribute('data-transitioning', 'true');
 
           const nextIndex = (currentSlideIndex + 1) % SLIDES.length;
           const nextSlide = SLIDES[nextIndex];
 
-          // Ensure shader textures match current -> next
           uniforms.uTexture1.value = slideTextures[currentSlideIndex];
           uniforms.uTexture2.value = slideTextures[nextIndex];
           uniforms.uTex1Res.value.copy(slideResolutions[currentSlideIndex]);
           uniforms.uTex2Res.value.copy(slideResolutions[nextIndex]);
           uniforms.uProgress.value = 0.0;
 
-          const textTargets = [titleEl, descEl, shopBtnEl];
-
           const tl = gsap.timeline({
             onComplete: function () {
               currentSlideIndex = nextIndex;
-              uniforms.uTexture1.value = slideTextures[currentSlideIndex];
-              uniforms.uTex1Res.value.copy(slideResolutions[currentSlideIndex]);
-              const upcomingIdx = (currentSlideIndex + 1) % SLIDES.length;
-              uniforms.uTexture2.value = slideTextures[upcomingIdx];
-              uniforms.uTex2Res.value.copy(slideResolutions[upcomingIdx]);
+              syncShaderTextures();
               uniforms.uProgress.value = 0.0;
-
-              document.body.setAttribute('data-slide', String(currentSlideIndex));
-              document.body.setAttribute('data-transitioning', 'false');
-              progressTrackEl.setAttribute(
-                'aria-valuenow',
-                String(currentSlideIndex + 1)
-              );
               isAnimating = false;
-              requestRender();
+              renderScene();
             },
           });
 
-          // 1. WebGL Spherical Lens Bubble Expansion (1.5s, power3.inOut)
           tl.to(
             uniforms.uProgress,
             {
               value: 1.0,
               duration: 1.5,
               ease: 'power3.inOut',
-              onUpdate: requestRender,
+              onUpdate: renderScene,
             },
             0
           );
 
-          // 2. Progress Indicator Bar Shift (0% for Slide 1, 100% for Slide 2)
+          tl.to(
+            [slideContentEl, pageIndicatorEl],
+            {
+              opacity: 0,
+              filter: 'blur(12px)',
+              y: -8,
+              duration: 0.48,
+              ease: 'power2.in',
+            },
+            0.06
+          );
+
           tl.to(
             progressFillEl,
             {
-              xPercent: nextIndex * 100,
+              width: nextIndex === 0 ? '50%' : '100%',
               duration: 1.5,
               ease: 'power3.inOut',
             },
             0
           );
 
-          // 3. Synchronized Text Fade + Soft Gaussian Blur Out
-          tl.to(
-            textTargets,
-            {
-              opacity: 0,
-              filter: 'blur(12px)',
-              y: -8,
-              duration: 0.48,
-              stagger: 0.04,
-              ease: 'power2.in',
-            },
-            0.05
-          );
-
-          tl.to(
-            pageIndicatorEl,
-            {
-              opacity: 0,
-              filter: 'blur(6px)',
-              duration: 0.38,
-              ease: 'power2.in',
-            },
-            0.1
-          );
-
-          // 4. Swap DOM Copy & Blur-Fade In as the Sphere Passes Center
           tl.call(
             function () {
-              titleEl.textContent = nextSlide.title;
-              descEl.textContent = nextSlide.description;
+              slideTitleEl.textContent = nextSlide.title;
+              slideDescEl.textContent = nextSlide.description;
               pageCurrentEl.textContent = nextSlide.pageNumber;
-              gsap.set(textTargets, { y: 10 });
+              progressTrackEl.setAttribute(
+                'aria-valuenow',
+                String(nextIndex + 1)
+              );
+              gsap.set([slideContentEl, pageIndicatorEl], { y: 10 });
             },
             null,
-            0.56
+            0.58
           );
 
           tl.to(
-            textTargets,
+            [slideContentEl, pageIndicatorEl],
             {
               opacity: 1,
               filter: 'blur(0px)',
               y: 0,
               duration: 0.78,
-              stagger: 0.05,
               ease: 'power2.out',
             },
-            0.58
-          );
-
-          tl.to(
-            pageIndicatorEl,
-            {
-              opacity: 1,
-              filter: 'blur(0px)',
-              duration: 0.65,
-              ease: 'power2.out',
-            },
-            0.62
+            0.6
           );
         }
 
-        // Click & keyboard triggers on canvas and progress bar
         container.addEventListener('click', function () {
           triggerNextSlide();
         });
 
-        container.addEventListener('keydown', function (e) {
-          if (
-            e.key === 'Enter' ||
-            e.key === ' ' ||
-            e.key === 'ArrowRight' ||
-            e.key === 'ArrowLeft'
-          ) {
-            e.preventDefault();
+        document
+          .getElementById('shop-now-btn')
+          .addEventListener('click', function (e) {
+            e.stopPropagation();
             triggerNextSlide();
-          }
-        });
-
-        window.addEventListener('keydown', function (e) {
-          if (modalBackdrop.classList.contains('open')) {
-            if (e.key === 'Escape') closeModal();
-            return;
-          }
-          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-            triggerNextSlide();
-          }
-        });
+          });
 
         progressTrackEl.addEventListener('click', function (e) {
           e.stopPropagation();
           triggerNextSlide();
         });
 
-        // ============================================================================
-        // 5. RESPONSIVE RESIZE HANDLER
-        // ============================================================================
-        window.addEventListener('resize', function () {
+        // Keyboard navigation (respects active section in viewport)
+        window.addEventListener('keydown', function (e) {
+          if (e.target && e.target.tagName === 'INPUT') return;
+          const luminaRect = document
+            .getElementById('lumina-section')
+            .getBoundingClientRect();
+          const inLumina = luminaRect.top < window.innerHeight * 0.5;
+
+          if (e.key === 'ArrowRight') {
+            if (inLumina) triggerNextSlide();
+            else stepProject(1);
+          } else if (e.key === 'ArrowLeft') {
+            if (inLumina) triggerNextSlide();
+            else stepProject(-1);
+          } else if (e.key === 'Escape') {
+            closeDetailDrawer();
+          }
+        });
+
+        // Update Top Navigation Active State on Scroll
+        const navPortfolioBtn = document.getElementById('nav-portfolio-btn');
+        const navLuminaBtn = document.getElementById('nav-lumina-btn');
+        window.addEventListener(
+          'scroll',
+          function () {
+            const luminaRect = document
+              .getElementById('lumina-section')
+              .getBoundingClientRect();
+            const isLuminaActive = luminaRect.top < window.innerHeight * 0.5;
+            navPortfolioBtn.classList.toggle('active', !isLuminaActive);
+            navLuminaBtn.classList.toggle('active', isLuminaActive);
+          },
+          { passive: true }
+        );
+
+        // Responsive Window Resize
+        function handleResize() {
+          renderOrbitalWheel();
+
           const w = window.innerWidth;
           const h = window.innerHeight;
           renderer.setSize(w, h);
           uniforms.uResolution.value.set(w, h);
-          requestRender();
-        });
+          renderScene();
+        }
 
-        // ============================================================================
-        // 6. TOP-RIGHT LOCAL IMAGE UPLOADER & DRAG-AND-DROP
-        // ============================================================================
-        const toolsContainer = document.getElementById('top-right-tools');
+        window.addEventListener('resize', handleResize);
+
+        // Top-right local slide uploader for Section 2
         const toolsTrigger = document.getElementById('tools-trigger');
         const toolsPanel = document.getElementById('tools-panel');
-        const fileInput1 = document.getElementById('file-input-1');
-        const fileInput2 = document.getElementById('file-input-2');
-        const swapSlidesBtn = document.getElementById('swap-slides-btn');
-        const resetSlidesBtn = document.getElementById('reset-slides-btn');
-        const windowDropIndicator = document.getElementById('window-drop-indicator');
 
-        toolsContainer.addEventListener('click', function (e) {
+        toolsTrigger.addEventListener('click', function (e) {
           e.stopPropagation();
-        });
-
-        toolsTrigger.addEventListener('click', function () {
           const isOpen = toolsPanel.classList.toggle('open');
           toolsTrigger.setAttribute('aria-expanded', String(isOpen));
         });
 
-        function applyFileToSlide(slotIndex, file) {
+        function handleLocalFile(slotIndex, file) {
           if (!file || !file.type.startsWith('image/')) return;
-          const reader = new FileReader();
-          reader.onload = function (evt) {
-            if (evt.target && evt.target.result) {
-              loadSlideImage(slotIndex, evt.target.result, file.name);
+          const objectUrl = URL.createObjectURL(file);
+          loadSlideTexture(slotIndex, objectUrl, file.name);
+        }
+
+        ['1', '2'].forEach(function (num, idx) {
+          const inputEl = document.getElementById('file-input-' + num);
+          const slotEl = document.getElementById('drop-slot-' + num);
+
+          inputEl.addEventListener('change', function (e) {
+            if (e.target.files && e.target.files[0]) {
+              handleLocalFile(idx, e.target.files[0]);
             }
-          };
-          reader.readAsDataURL(file);
-        }
+          });
 
-        fileInput1.addEventListener('change', function (e) {
-          if (e.target.files && e.target.files[0]) {
-            applyFileToSlide(0, e.target.files[0]);
-          }
+          slotEl.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            slotEl.classList.add('dragover');
+          });
+
+          slotEl.addEventListener('dragleave', function () {
+            slotEl.classList.remove('dragover');
+          });
+
+          slotEl.addEventListener('drop', function (e) {
+            e.preventDefault();
+            slotEl.classList.remove('dragover');
+            if (e.dataTransfer && e.dataTransfer.files[0]) {
+              handleLocalFile(idx, e.dataTransfer.files[0]);
+            }
+          });
         });
 
-        fileInput2.addEventListener('change', function (e) {
-          if (e.target.files && e.target.files[0]) {
-            applyFileToSlide(1, e.target.files[0]);
-          }
-        });
+        document
+          .getElementById('swap-slides-btn')
+          .addEventListener('click', function (e) {
+            e.stopPropagation();
+            const tempTex = slideTextures[0];
+            slideTextures[0] = slideTextures[1];
+            slideTextures[1] = tempTex;
 
-        swapSlidesBtn.addEventListener('click', function () {
-          const tempTex = slideTextures[0];
-          slideTextures[0] = slideTextures[1];
-          slideTextures[1] = tempTex;
+            const tempRes = slideResolutions[0].clone();
+            slideResolutions[0].copy(slideResolutions[1]);
+            slideResolutions[1].copy(tempRes);
 
-          const tempRes = slideResolutions[0].clone();
-          slideResolutions[0].copy(slideResolutions[1]);
-          slideResolutions[1].copy(tempRes);
+            syncShaderTextures();
+          });
 
-          const label1 = document.getElementById('slot-1-name');
-          const label2 = document.getElementById('slot-2-name');
-          const tmpText = label1.textContent;
-          label1.textContent = label2.textContent;
-          label2.textContent = tmpText;
+        document
+          .getElementById('reset-slides-btn')
+          .addEventListener('click', function (e) {
+            e.stopPropagation();
+            loadSlideTexture(0, SLIDES[0].defaultSrc, './slide1.jpg');
+            loadSlideTexture(1, SLIDES[1].defaultSrc, './slide2.jpg');
+          });
 
-          syncShaderTextures();
-        });
-
-        resetSlidesBtn.addEventListener('click', function () {
-          loadSlideImage(0, SLIDES[0].defaultSrc, './slide1.jpg');
-          loadSlideImage(1, SLIDES[1].defaultSrc, './slide2.jpg');
-        });
-
-        // Window-wide Drag & Drop support
-        let dragDepth = 0;
-        window.addEventListener('dragenter', function (e) {
-          e.preventDefault();
-          dragDepth++;
-          windowDropIndicator.classList.add('active');
-        });
-
-        window.addEventListener('dragover', function (e) {
-          e.preventDefault();
-        });
-
-        window.addEventListener('dragleave', function (e) {
-          e.preventDefault();
-          dragDepth = Math.max(0, dragDepth - 1);
-          if (dragDepth === 0) {
-            windowDropIndicator.classList.remove('active');
-          }
-        });
-
-        window.addEventListener('drop', function (e) {
-          e.preventDefault();
-          dragDepth = 0;
-          windowDropIndicator.classList.remove('active');
-          const files = e.dataTransfer && e.dataTransfer.files;
-          if (!files || files.length === 0) return;
-
-          if (files.length >= 2) {
-            applyFileToSlide(0, files[0]);
-            applyFileToSlide(1, files[1]);
-          } else {
-            // Replace currently active slide image
-            applyFileToSlide(currentSlideIndex, files[0]);
-          }
-        });
-
-        // ============================================================================
-        // 7. SHOP NOW PRODUCT MODAL HANDLER
-        // ============================================================================
-        const modalBackdrop = document.getElementById('product-modal-backdrop');
-        const modalKicker = document.getElementById('modal-kicker');
-        const modalTitle = document.getElementById('modal-title');
-        const modalDesc = document.getElementById('modal-desc');
-        const modalPrice = document.getElementById('modal-price');
-        const modalReserveBtn = document.getElementById('modal-reserve-btn');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
-
-        function openModal() {
-          const slide = SLIDES[currentSlideIndex];
-          modalKicker.textContent = 'COLLECTION ' + slide.pageNumber + ' / 02';
-          modalTitle.textContent = slide.title;
-          modalDesc.textContent = slide.modalDetail;
-          modalPrice.textContent = slide.price;
-          modalReserveBtn.textContent = 'Reserve Piece';
-          modalBackdrop.classList.add('open');
-        }
-
-        function closeModal() {
-          modalBackdrop.classList.remove('open');
-        }
-
-        shopBtnEl.addEventListener('click', function (e) {
-          e.stopPropagation();
-          openModal();
-        });
-
-        modalCloseBtn.addEventListener('click', function (e) {
-          e.stopPropagation();
-          closeModal();
-        });
-
-        modalReserveBtn.addEventListener('click', function (e) {
-          e.stopPropagation();
-          modalReserveBtn.textContent = 'Added to Private Reservation';
-        });
-
-        modalBackdrop.addEventListener('click', function (e) {
-          if (e.target === modalBackdrop) {
-            closeModal();
-          }
-        });
+        renderScene();
       })();
     </script>
   </body>
