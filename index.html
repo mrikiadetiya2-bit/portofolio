@@ -283,6 +283,15 @@
         cursor: grabbing;
       }
 
+      .orbital-guide-svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
       .orbital-item {
         position: absolute;
         top: 50%;
@@ -296,6 +305,7 @@
         justify-content: center;
         pointer-events: auto;
         -webkit-user-drag: none;
+        z-index: 2;
       }
 
       .orbital-item-img {
@@ -307,28 +317,32 @@
         object-fit: contain;
         pointer-events: none;
         -webkit-user-drag: none;
-        filter: drop-shadow(0 24px 34px rgba(14, 16, 22, 0.16));
+        will-change: transform;
+        filter: drop-shadow(0 10px 18px rgba(14, 16, 22, 0.1));
         transition: filter 0.25s ease;
       }
 
       .orbital-item:hover .orbital-item-img {
-        filter: drop-shadow(0 30px 42px rgba(14, 16, 22, 0.22));
+        filter: drop-shadow(0 16px 26px rgba(14, 16, 22, 0.18));
       }
 
       .orbital-item-shadow {
         position: absolute;
-        bottom: -6%;
+        bottom: -32px;
         left: 50%;
         transform: translateX(-50%);
-        width: 68%;
+        width: 64%;
         height: 28px;
         border-radius: 50%;
         background: radial-gradient(
           ellipse at center,
-          rgba(15, 17, 22, 0.22) 0%,
-          rgba(15, 17, 22, 0.08) 52%,
-          rgba(15, 17, 22, 0) 76%
+          rgba(14, 16, 22, 0.34) 0%,
+          rgba(14, 16, 22, 0.16) 44%,
+          rgba(14, 16, 22, 0.04) 68%,
+          rgba(14, 16, 22, 0) 82%
         );
+        filter: blur(3px);
+        will-change: transform, opacity;
         pointer-events: none;
         z-index: -1;
       }
@@ -1283,7 +1297,23 @@
         data-testid="portfolio-orbital-stage"
         role="region"
         aria-label="Orbital Device Mockup Track"
-      ></div>
+      >
+        <svg
+          class="orbital-guide-svg"
+          id="orbital-guide-svg"
+          viewBox="0 0 1440 900"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            id="orbital-guide-path"
+            d="M 590 880 C 640 520, 880 180, 1440 280"
+            fill="none"
+            stroke="rgba(17, 18, 21, 0.055)"
+            stroke-width="1.5"
+          />
+        </svg>
+      </div>
 
       <!-- Separate High Z-Index HTML Layer (z-index: 25) -->
       <div class="portfolio-ui" id="portfolio-ui">
@@ -1548,8 +1578,8 @@
             src: './project1.png',
             fallbackSrc: '/assets/aistudio/INSTAPRESISI_d373e4e0.png',
             aspectType: 'phone',
-            baseW: 360,
-            baseH: 520,
+            baseW: 255,
+            baseH: 335,
             tech: [
               'React Native',
               'TypeScript',
@@ -1572,8 +1602,8 @@
             src: './project2.png',
             fallbackSrc: '/assets/aistudio/SIRAMKU_bef1e8ac.png',
             aspectType: 'phone',
-            baseW: 360,
-            baseH: 520,
+            baseW: 255,
+            baseH: 335,
             tech: [
               'React',
               'TypeScript',
@@ -1596,8 +1626,8 @@
             src: './project3.png',
             fallbackSrc: '/assets/aistudio/SARPRAS_004b9e76.png',
             aspectType: 'laptop',
-            baseW: 540,
-            baseH: 400,
+            baseW: 375,
+            baseH: 265,
             tech: [
               'React',
               'TypeScript',
@@ -1620,8 +1650,8 @@
             src: './project4.png',
             fallbackSrc: '/assets/aistudio/mieprik-ecom_57dab492.png',
             aspectType: 'tablet',
-            baseW: 500,
-            baseH: 390,
+            baseW: 345,
+            baseH: 255,
             tech: [
               'Next.js',
               'TypeScript',
@@ -1644,8 +1674,8 @@
             src: './project5.png',
             fallbackSrc: '/assets/aistudio/berita-bankmandiri_4f240d1b.png',
             aspectType: 'phone',
-            baseW: 360,
-            baseH: 520,
+            baseW: 255,
+            baseH: 335,
             tech: [
               'React',
               'TypeScript',
@@ -1668,8 +1698,8 @@
             src: './project6.png',
             fallbackSrc: '/assets/aistudio/sluetmodel_9b3c4a87.png',
             aspectType: 'tablet',
-            baseW: 500,
-            baseH: 390,
+            baseW: 345,
+            baseH: 255,
             tech: [
               'React',
               'Three.js',
@@ -1692,8 +1722,8 @@
             src: './project7.png',
             fallbackSrc: '/assets/aistudio/MUSEE_20c23e7c.png',
             aspectType: 'phone',
-            baseW: 360,
-            baseH: 520,
+            baseW: 255,
+            baseH: 335,
             tech: [
               'React',
               'TypeScript',
@@ -1716,8 +1746,8 @@
             src: './project8.png',
             fallbackSrc: '/assets/aistudio/SOLARMAP_16d78f76.png',
             aspectType: 'tablet',
-            baseW: 500,
-            baseH: 390,
+            baseW: 345,
+            baseH: 255,
             tech: [
               'React',
               'TypeScript',
@@ -1736,6 +1766,7 @@
         const N_PROJECTS = PROJECTS.length;
         const portfolioSectionEl = document.getElementById('portfolio-section');
         const orbitalStageEl = document.getElementById('orbital-wheel-stage');
+        const orbitalGuidePathEl = document.getElementById('orbital-guide-path');
         const projPageNumEl = document.getElementById('proj-page-num');
         const projTitleEl = document.getElementById('proj-title');
         const projSubtitleEl = document.getElementById('proj-subtitle');
@@ -1791,27 +1822,28 @@
           return {
             el: itemEl,
             img: imgEl,
+            shadow: shadowEl,
             proj: proj,
             index: idx,
           };
         });
 
-        // Keyframes along the curved diagonal orbital arch (matching Video 2's exact trajectory):
-        // t = -2: Bottom center right behind/under the wheel bar (like the blue shoe at 00:00 in Video 2)
-        // t = -1: Lower-center below the hero item
-        // t =  0: Main Center Hero item (largest, highest z-index)
-        // t = +1: Upper-right behind hero
+        // Well-spaced Keyframes along the curved diagonal orbital arch (matching reference video without overlap):
+        // t = -2: Bottom-left near the wheel cylinder
+        // t = -1: Lower-left below the hero item with clean vertical breathing room
+        // t =  0: Main Center Hero item (upper-center, zero overlap with neighbors)
+        // t = +1: Upper-right clearly separated from hero
         // t = +2: Further right along the arch
         // t = +3: Far right viewport edge
         const ORBIT_KEYFRAMES = [
-          { t: -3.0, rx: -0.14, ry: 0.52, scale: 0.22, opacity: 0.0 },
-          { t: -2.0, rx: -0.055, ry: 0.365, scale: 0.34, opacity: 0.92 },
-          { t: -1.0, rx: -0.015, ry: 0.155, scale: 0.56, opacity: 0.98 },
-          { t: 0.0, rx: 0.075, ry: -0.065, scale: 1.0, opacity: 1.0 },
-          { t: 1.0, rx: 0.225, ry: -0.22, scale: 0.65, opacity: 0.98 },
-          { t: 2.0, rx: 0.365, ry: -0.21, scale: 0.38, opacity: 0.92 },
-          { t: 3.0, rx: 0.485, ry: -0.11, scale: 0.3, opacity: 0.85 },
-          { t: 4.0, rx: 0.58, ry: 0.02, scale: 0.22, opacity: 0.0 },
+          { t: -3.0, rx: -0.15, ry: 0.54, scale: 0.18, opacity: 0.0 },
+          { t: -2.0, rx: -0.075, ry: 0.365, scale: 0.28, opacity: 0.9 },
+          { t: -1.0, rx: -0.025, ry: 0.14, scale: 0.46, opacity: 0.96 },
+          { t: 0.0, rx: 0.085, ry: -0.145, scale: 0.94, opacity: 1.0 },
+          { t: 1.0, rx: 0.268, ry: -0.278, scale: 0.5, opacity: 0.96 },
+          { t: 2.0, rx: 0.398, ry: -0.245, scale: 0.33, opacity: 0.92 },
+          { t: 3.0, rx: 0.492, ry: -0.135, scale: 0.24, opacity: 0.86 },
+          { t: 4.0, rx: 0.58, ry: 0.02, scale: 0.16, opacity: 0.0 },
         ];
 
         function sampleOrbitalCurve(t) {
@@ -1850,12 +1882,20 @@
           return ((Math.round(idx) % N_PROJECTS) + N_PROJECTS) % N_PROJECTS;
         }
 
-        // Renders all 8 device mockups along the continuous orbital curve every frame
-        function renderOrbitalWheel() {
+        // Renders all 8 device mockups along the continuous orbital curve + continuous floating & shadow breathing
+        function renderOrbitalWheel(timeSec) {
+          const nowSec =
+            typeof timeSec === 'number' ? timeSec : performance.now() * 0.001;
           const vw = window.innerWidth;
           const vh = window.innerHeight;
           const responsiveScale = Math.min(Math.max(vw / 1440, 0.58), 1.15);
           const dp = wheelState.detailProgress;
+
+          if (orbitalGuidePathEl) {
+            orbitalGuidePathEl.style.opacity = String(
+              Math.max(0, 1 - dp * 1.5)
+            );
+          }
 
           // Update metallic wheel ridge position continuously as wheel rotates
           wheelRidgesEl.style.backgroundPositionX =
@@ -1872,13 +1912,13 @@
             let op = curve.opacity;
 
             // If transitioning into or inside "View project" Detail Mode (like 00:02 in Video 2):
-            // The active item (offset ~ 0) glides smoothly to the left side (-0.23 * vw, -0.04 * vh)
+            // The active item (offset ~ 0) glides smoothly to the left side (-0.22 * vw, -0.05 * vh)
             // while all other orbital items slide outward along the track and fade out
             if (dp > 0.001) {
               if (Math.abs(offset) < 0.45) {
                 const targetX = -0.22 * vw;
-                const targetY = -0.04 * vh;
-                const targetScale = 0.96 * responsiveScale;
+                const targetY = -0.05 * vh;
+                const targetScale = 1.02 * responsiveScale;
                 x = x + (targetX - x) * dp;
                 y = y + (targetY - y) * dp;
                 sc = sc + (targetScale - sc) * dp;
@@ -1890,7 +1930,7 @@
               }
             }
 
-            // Z-index is highest at offset = 0 (Hero item overlaps both -1 and +1 just like Video 2)
+            // Z-index is highest at offset = 0
             const zOrder = Math.round(100 - Math.abs(offset) * 22);
             node.el.style.zIndex = String(zOrder);
 
@@ -1908,6 +1948,37 @@
                 'px), 0) scale(' +
                 sc.toFixed(4) +
                 ')';
+
+              // Continuous sinusoidal vertical levitation (device bobs up & down like reference video)
+              const phase = node.index * 1.15;
+              const wave = Math.sin(nowSec * 2.5 + phase);
+              const floatY = wave * 12.5; // +12.5px down to -12.5px up
+              const floatTilt = Math.cos(nowSec * 2.5 + phase) * 0.9;
+
+              node.img.style.transform =
+                'translate3d(0, ' +
+                floatY.toFixed(2) +
+                'px, 0) rotateZ(' +
+                floatTilt.toFixed(2) +
+                'deg)';
+
+              // Dynamic floor shadow: stays anchored to the floor plane (counter-compensates floatY)
+              // and breathes in inverse sync: when device rises (wave < 0), shadow expands softly & lightens;
+              // when device lowers toward the floor (wave > 0), shadow tightens & darkens.
+              const shadowOffsetY = -floatY * 0.35;
+              const shadowScaleX = 0.94 - wave * 0.14;
+              const shadowScaleY = 0.94 - wave * 0.12;
+              const shadowOpacity = 0.72 + wave * 0.24;
+
+              node.shadow.style.transform =
+                'translate3d(-50%, ' +
+                shadowOffsetY.toFixed(2) +
+                'px, 0) scale(' +
+                shadowScaleX.toFixed(3) +
+                ', ' +
+                shadowScaleY.toFixed(3) +
+                ')';
+              node.shadow.style.opacity = shadowOpacity.toFixed(3);
             }
           });
 
@@ -2195,9 +2266,12 @@
             stepProject(1);
           });
 
-        // Initialize Section 1 Orbital Wheel
+        // Initialize Section 1 Orbital Wheel & Continuous 60fps Levitation Ticker
         updateProjectDomImmediate(0);
         renderOrbitalWheel();
+        gsap.ticker.add(function (time) {
+          renderOrbitalWheel(time);
+        });
 
         // ============================================================================
         // PART B: SECTION 2 — LUMINA & ROSE MIRAGE EDITORIAL LENS SLIDER
