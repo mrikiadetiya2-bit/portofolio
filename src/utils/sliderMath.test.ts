@@ -8,6 +8,7 @@ import {
   computeChromaticOffset,
   safeLensUv,
   getNextSlideIndex,
+  computeSeamlessTextPathOffset,
 } from './sliderMath';
 
 test('computeCoverUv preserves UV on matching 16:9 aspect ratio', () => {
@@ -56,3 +57,13 @@ test('getNextSlideIndex cycles cleanly between 0 and 1', () => {
   assert.equal(getNextSlideIndex(0, 2), 1);
   assert.equal(getNextSlideIndex(1, 2), 0);
 });
+
+test('computeSeamlessTextPathOffset stays within [-unitLength, 0] and wraps seamlessly', () => {
+  const unitLen = 160;
+  assert.equal(computeSeamlessTextPathOffset(0, 32, unitLen), 0);
+  const mid = computeSeamlessTextPathOffset(2.5, 32, unitLen);
+  assert.equal(mid, -80);
+  const wrapped = computeSeamlessTextPathOffset(5.0, 32, unitLen);
+  assert.equal(wrapped, 0);
+});
+

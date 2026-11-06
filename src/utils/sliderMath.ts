@@ -105,3 +105,18 @@ export function getNextSlideIndex(currentIndex: number, totalSlides = 2): number
   if (totalSlides <= 0) return 0;
   return (currentIndex + 1) % totalSlides;
 }
+
+/**
+ * Computes a seamless negative startOffset in [-unitLength, 0] for an SVG <textPath>
+ * so the curved path remains 100% filled from end to end without gaps or wrap jumps.
+ */
+export function computeSeamlessTextPathOffset(
+  timeSec: number,
+  speedPxPerSec: number,
+  unitLength: number
+): number {
+  if (unitLength <= 0 || !Number.isFinite(unitLength)) return 0;
+  const shift = ((timeSec * speedPxPerSec) % unitLength + unitLength) % unitLength;
+  return shift === 0 ? 0 : -shift;
+}
+

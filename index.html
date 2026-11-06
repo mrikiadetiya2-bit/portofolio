@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lumina &amp; Rose Mirage — WebGL Orbital Showcase &amp; Lens Slider</title>
+    <title>RIKI'DEV</title>
     <meta
       name="description"
       content="Interactive 3D orbital device mockup showcase with smooth wheel scrolling and WebGL spherical lens image slider."
     />
     <meta
       property="og:title"
-      content="Lumina &amp; Rose Mirage — WebGL Orbital Showcase &amp; Lens Slider"
+      content="RIKI'DEV"
     />
     <meta
       property="og:description"
@@ -290,7 +290,21 @@
         height: 100%;
         pointer-events: none;
         z-index: 1;
+        overflow: visible;
       }
+
+      .orbital-guide-text {
+        font-family: 'Space Mono', 'Plus Jakarta Sans', monospace, sans-serif;
+        font-size: 10.5px;
+        font-weight: 500;
+        letter-spacing: 0.25em;
+        fill: rgba(0, 0, 0, 0.28);
+        text-transform: uppercase;
+        white-space: pre;
+        user-select: none;
+      }
+
+      /* Offscreen Dynamic CanvasTexture handles the marquee inside WebGL */
 
       .orbital-item {
         position: absolute;
@@ -305,25 +319,40 @@
         justify-content: center;
         pointer-events: auto;
         -webkit-user-drag: none;
-        z-index: 2;
+        z-index: 5;
+      }
+
+      .orbital-item-float {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        will-change: transform;
+      }
+
+      .orbital-item-neon-canvas {
+        position: absolute;
+        top: -48px;
+        left: -48px;
+        width: calc(100% + 96px);
+        height: calc(100% + 96px);
+        pointer-events: none;
+        z-index: 1;
+        will-change: opacity;
       }
 
       .orbital-item-img {
+        position: relative;
+        z-index: 2;
         display: block;
-        width: auto;
-        height: auto;
-        max-width: 100%;
-        max-height: 100%;
+        width: 100%;
+        height: 100%;
         object-fit: contain;
         pointer-events: none;
         -webkit-user-drag: none;
-        will-change: transform;
-        filter: drop-shadow(0 10px 18px rgba(14, 16, 22, 0.1));
-        transition: filter 0.25s ease;
-      }
-
-      .orbital-item:hover .orbital-item-img {
-        filter: drop-shadow(0 16px 26px rgba(14, 16, 22, 0.18));
       }
 
       .orbital-item-shadow {
@@ -1266,10 +1295,19 @@
               class="liquid-nav-link"
               data-nav="about"
             >
-              About
+              Experience
             </a>
           </li>
           <li class="liquid-nav-item">
+            <a
+              href="#lumina-section"
+              class="liquid-nav-link"
+              data-nav="contact"
+            >
+              About
+            </a>
+          </li>
+           <li class="liquid-nav-item">
             <a
               href="#lumina-section"
               class="liquid-nav-link"
@@ -1302,16 +1340,24 @@
           class="orbital-guide-svg"
           id="orbital-guide-svg"
           viewBox="0 0 1440 900"
-          preserveAspectRatio="none"
+          preserveAspectRatio="xMidYMid slice"
           aria-hidden="true"
         >
-          <path
-            id="orbital-guide-path"
-            d="M 590 880 C 640 520, 880 180, 1440 280"
-            fill="none"
-            stroke="rgba(17, 18, 21, 0.055)"
-            stroke-width="1.5"
-          />
+          <defs>
+            <path
+              id="orbital-guide-path"
+              d="M 580 925 C 638 515, 880 178, 1475 286"
+              fill="none"
+              stroke="none"
+            />
+          </defs>
+          <text class="orbital-guide-text" xml:space="preserve">
+            <textPath
+              id="orbital-guide-textpath"
+              href="#orbital-guide-path"
+              startOffset="0"
+            >RIKI DEVELOPER  RIKI DEVELOPER RIKI DEVELOPER </textPath>
+          </text>
         </svg>
       </div>
 
@@ -1460,7 +1506,7 @@
     <section
       class="lumina-section"
       id="lumina-section"
-      aria-label="Lumina and Rose Mirage WebGL Slider"
+      aria-label="RIKI'DEV"
     >
       <div
         id="webgl-container"
@@ -1474,12 +1520,12 @@
 
       <div class="slider-ui">
         <div class="slide-content" id="slide-content">
-          <h1 class="slide-title" id="slide-title">Lumina Slider</h1>
+          <h1 class="slide-title" id="slide-title">M. RIKI ADETIYA</h1>
           <p class="slide-desc" id="slide-desc">
             A soft, radiant light that illuminates the soul.
           </p>
           <button type="button" class="shop-now-btn" id="shop-now-btn">
-            SHOP NOW
+            Project
           </button>
         </div>
 
@@ -1521,29 +1567,51 @@
           aria-label="Local Slide Image Switcher"
         >
           <div class="tools-panel-header">
-            <span>Local Slide Assets</span>
-            <span style="font-weight: 400; color: rgba(255, 255, 255, 0.45)">16:9 Cover</span>
+            <span>3-Layer Sandwich Assets</span>
+            <span style="font-weight: 400; color: rgba(255, 255, 255, 0.45)">BG + FG PNG</span>
           </div>
 
-          <label class="drop-slot" id="drop-slot-1">
-            <span>Slide 01 (Lumina)</span>
-            <span class="drop-slot-meta" id="slot-1-name">./slide1.jpg</span>
+          <label class="drop-slot" id="drop-slot-bg-1">
+            <span>Slide 1 Background</span>
+            <span class="drop-slot-meta" id="slot-bg-1-name">./slide1.jpg</span>
             <input
               type="file"
-              id="file-input-1"
+              id="file-input-bg-1"
               accept="image/*"
-              aria-label="Upload Slide 1 Image"
+              aria-label="Upload Slide 1 Background"
             />
           </label>
 
-          <label class="drop-slot" id="drop-slot-2">
-            <span>Slide 02 (Rose Mirage)</span>
-            <span class="drop-slot-meta" id="slot-2-name">./slide2.jpg</span>
+          <label class="drop-slot" id="drop-slot-fg-1">
+            <span>Slide 1 Foreground (PNG)</span>
+            <span class="drop-slot-meta" id="slot-fg-1-name">./slide1-removebg-preview.png</span>
             <input
               type="file"
-              id="file-input-2"
+              id="file-input-fg-1"
+              accept="image/png,image/*"
+              aria-label="Upload Slide 1 Foreground PNG"
+            />
+          </label>
+
+          <label class="drop-slot" id="drop-slot-bg-2">
+            <span>Slide 2 Background</span>
+            <span class="drop-slot-meta" id="slot-bg-2-name">./slide2.jpg</span>
+            <input
+              type="file"
+              id="file-input-bg-2"
               accept="image/*"
-              aria-label="Upload Slide 2 Image"
+              aria-label="Upload Slide 2 Background"
+            />
+          </label>
+
+          <label class="drop-slot" id="drop-slot-fg-2">
+            <span>Slide 2 Foreground (PNG)</span>
+            <span class="drop-slot-meta" id="slot-fg-2-name">./slide2-removebg-preview.png</span>
+            <input
+              type="file"
+              id="file-input-fg-2"
+              accept="image/png,image/*"
+              aria-label="Upload Slide 2 Foreground PNG"
             />
           </label>
 
@@ -1766,7 +1834,31 @@
         const N_PROJECTS = PROJECTS.length;
         const portfolioSectionEl = document.getElementById('portfolio-section');
         const orbitalStageEl = document.getElementById('orbital-wheel-stage');
-        const orbitalGuidePathEl = document.getElementById('orbital-guide-path');
+        const orbitalGuideSvgEl = document.getElementById('orbital-guide-svg');
+        const orbitalTextPathEl = document.getElementById('orbital-guide-textpath');
+        const ORBIT_TEXT_CYCLE = 'RIKI DEVELOPER  RIKI DEVELOPER RIKI DEVELOPER ';
+        let orbitTextCycleLen = 460;
+
+        if (orbitalTextPathEl) {
+          orbitalTextPathEl.textContent = ORBIT_TEXT_CYCLE.repeat(14);
+          const measureCycleLength = function () {
+            try {
+              const measured = orbitalTextPathEl.getSubStringLength(
+                ORBIT_TEXT_CYCLE.length,
+                ORBIT_TEXT_CYCLE.length
+              );
+              if (measured > 40 && Number.isFinite(measured)) {
+                orbitTextCycleLen = measured;
+              }
+            } catch (_e) {
+              // Fallback if SVG text layout is not ready yet
+            }
+          };
+          measureCycleLength();
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(measureCycleLength);
+          }
+        }
         const projPageNumEl = document.getElementById('proj-page-num');
         const projTitleEl = document.getElementById('proj-title');
         const projSubtitleEl = document.getElementById('proj-subtitle');
@@ -1793,6 +1885,92 @@
         let activeProjIdx = 0;
         let isDetailOpen = false;
 
+        const DEVICE_NEON_PALETTES = [
+          {
+            core: '#00f0ff',
+            primary: '#00b8ff',
+            secondary: '#7c3aed',
+          },
+          {
+            core: '#00ff9d',
+            primary: '#10b981',
+            secondary: '#06b6d4',
+          },
+          {
+            core: '#00e5ff',
+            primary: '#2563eb',
+            secondary: '#6366f1',
+          },
+          {
+            core: '#ffab00',
+            primary: '#ff5500',
+            secondary: '#f43f5e',
+          },
+          {
+            core: '#00e5ff',
+            primary: '#0ea5e9',
+            secondary: '#6366f1',
+          },
+          {
+            core: '#ff4ecd',
+            primary: '#d946ef',
+            secondary: '#8b5cf6',
+          },
+          {
+            core: '#d946ef',
+            primary: '#9333ea',
+            secondary: '#00e5ff',
+          },
+          {
+            core: '#00f5d4',
+            primary: '#10b981',
+            secondary: '#3b82f6',
+          },
+        ];
+
+        function bakeDeviceNeonCanvas(canvasEl, imgEl, boxW, boxH, neon) {
+          const pad = 48;
+          const cw = boxW + pad * 2;
+          const ch = boxH + pad * 2;
+          canvasEl.width = cw;
+          canvasEl.height = ch;
+          const ctx = canvasEl.getContext('2d');
+          if (!ctx) return;
+          ctx.clearRect(0, 0, cw, ch);
+
+          const natW = imgEl.naturalWidth || boxW;
+          const natH = imgEl.naturalHeight || boxH;
+          const scale = Math.min(boxW / natW, boxH / natH);
+          const drawW = natW * scale;
+          const drawH = natH * scale;
+          const dx = pad + (boxW - drawW) * 0.5;
+          const dy = pad + (boxH - drawH) * 0.5;
+
+          const passes = [
+            { color: neon.secondary, blur: 36, alpha: 0.78 },
+            { color: neon.primary, blur: 22, alpha: 0.92 },
+            { color: neon.core, blur: 10, alpha: 1.0 },
+            { color: neon.core, blur: 4, alpha: 1.0 },
+          ];
+
+          passes.forEach(function (pass) {
+            ctx.save();
+            ctx.globalAlpha = pass.alpha;
+            ctx.shadowColor = pass.color;
+            ctx.shadowBlur = pass.blur;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.drawImage(imgEl, dx, dy, drawW, drawH);
+            ctx.restore();
+          });
+
+          // Cut out the interior device silhouette so neonCanvas only contains the outer neon halo
+          ctx.save();
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.drawImage(imgEl, dx, dy, drawW, drawH);
+          ctx.restore();
+        }
+
         // Create the 8 DOM orbital item nodes inside #orbital-wheel-stage
         const orbitalNodes = PROJECTS.map(function (proj, idx) {
           const itemEl = document.createElement('div');
@@ -1800,12 +1978,23 @@
           itemEl.style.width = proj.baseW + 'px';
           itemEl.style.height = proj.baseH + 'px';
           itemEl.setAttribute('data-project-index', String(idx));
+          const neon = DEVICE_NEON_PALETTES[idx % DEVICE_NEON_PALETTES.length];
+
+          const floatEl = document.createElement('div');
+          floatEl.className = 'orbital-item-float';
+
+          const neonCanvas = document.createElement('canvas');
+          neonCanvas.className = 'orbital-item-neon-canvas';
+          neonCanvas.setAttribute('aria-hidden', 'true');
 
           const imgEl = document.createElement('img');
           imgEl.className = 'orbital-item-img';
           imgEl.src = proj.src;
           imgEl.alt = proj.title;
           imgEl.referrerPolicy = 'no-referrer';
+          imgEl.onload = function () {
+            bakeDeviceNeonCanvas(neonCanvas, imgEl, proj.baseW, proj.baseH, neon);
+          };
           imgEl.onerror = function () {
             if (imgEl.src !== proj.fallbackSrc) {
               imgEl.src = proj.fallbackSrc;
@@ -1815,12 +2004,16 @@
           const shadowEl = document.createElement('div');
           shadowEl.className = 'orbital-item-shadow';
 
-          itemEl.appendChild(imgEl);
+          floatEl.appendChild(neonCanvas);
+          floatEl.appendChild(imgEl);
+          itemEl.appendChild(floatEl);
           itemEl.appendChild(shadowEl);
           orbitalStageEl.appendChild(itemEl);
 
           return {
             el: itemEl,
+            floatEl: floatEl,
+            neonCanvas: neonCanvas,
             img: imgEl,
             shadow: shadowEl,
             proj: proj,
@@ -1891,10 +2084,19 @@
           const responsiveScale = Math.min(Math.max(vw / 1440, 0.58), 1.15);
           const dp = wheelState.detailProgress;
 
-          if (orbitalGuidePathEl) {
-            orbitalGuidePathEl.style.opacity = String(
+          if (orbitalGuideSvgEl) {
+            orbitalGuideSvgEl.style.opacity = String(
               Math.max(0, 1 - dp * 1.5)
             );
+          }
+
+          if (orbitalTextPathEl && orbitTextCycleLen > 0) {
+            const textSpeedPxPerSec = 34;
+            const shift =
+              (((nowSec * textSpeedPxPerSec) % orbitTextCycleLen) +
+                orbitTextCycleLen) %
+              orbitTextCycleLen;
+            orbitalTextPathEl.setAttribute('startOffset', (-shift).toFixed(2));
           }
 
           // Update metallic wheel ridge position continuously as wheel rotates
@@ -1955,12 +2157,17 @@
               const floatY = wave * 12.5; // +12.5px down to -12.5px up
               const floatTilt = Math.cos(nowSec * 2.5 + phase) * 0.9;
 
-              node.img.style.transform =
+              node.floatEl.style.transform =
                 'translate3d(0, ' +
                 floatY.toFixed(2) +
                 'px, 0) rotateZ(' +
                 floatTilt.toFixed(2) +
                 'deg)';
+
+              if (node.neonCanvas) {
+                const neonPulse = 0.86 + 0.14 * Math.sin(nowSec * 3.2 + phase);
+                node.neonCanvas.style.opacity = neonPulse.toFixed(3);
+              }
 
               // Dynamic floor shadow: stays anchored to the floor plane (counter-compensates floatY)
               // and breathes in inverse sync: when device rises (wave < 0), shadow expands softly & lightens;
@@ -2290,11 +2497,14 @@
 
           varying vec2 vUv;
 
-          uniform sampler2D uTexture1;
-          uniform sampler2D uTexture2;
+          uniform sampler2D uBgCurrent;
+          uniform sampler2D uFgCurrent;
+          uniform sampler2D uBgNext;
+          uniform sampler2D uFgNext;
+          uniform sampler2D uTextTex;
           uniform vec2 uResolution;
-          uniform vec2 uTex1Res;
-          uniform vec2 uTex2Res;
+          uniform vec2 uTexCurrentRes;
+          uniform vec2 uTexNextRes;
           uniform float uProgress;
 
           vec2 getCoverUv(vec2 uv, vec2 screenRes, vec2 texRes) {
@@ -2314,23 +2524,34 @@
             return clamp(mirrored, 0.001, 0.999);
           }
 
+          // 3-Layer Sandwich Compositing: Background -> Dynamic Marquee Text (uTextTex) -> Foreground Cutout PNG
+          vec4 getCompositeSlide(sampler2D bgTex, sampler2D fgTex, vec2 imgUv, vec2 screenUv) {
+            vec4 bg = texture2D(bgTex, imgUv);
+            vec4 txt = texture2D(uTextTex, screenUv);
+            vec4 fg = texture2D(fgTex, imgUv);
+            vec3 bgWithText = mix(bg.rgb, txt.rgb, txt.a);
+            vec3 finalSlide = mix(bgWithText, fg.rgb, fg.a);
+            return vec4(finalSlide, 1.0);
+          }
+
           void main() {
             vec2 center = vec2(0.5, 0.5);
             float aspect = uResolution.x / max(uResolution.y, 1.0);
             vec2 aspectVec = vec2(aspect, 1.0);
 
-            vec2 baseUv1 = clamp(getCoverUv(vUv, uResolution, uTex1Res), 0.0, 1.0);
-            vec2 baseUv2 = clamp(getCoverUv(vUv, uResolution, uTex2Res), 0.0, 1.0);
-            vec4 tex1 = texture2D(uTexture1, baseUv1);
-            vec4 tex2Final = texture2D(uTexture2, baseUv2);
+            vec2 coverUvCurrent = clamp(getCoverUv(vUv, uResolution, uTexCurrentRes), 0.0, 1.0);
+            vec2 coverUvNext = clamp(getCoverUv(vUv, uResolution, uTexNextRes), 0.0, 1.0);
+
+            vec4 currentComposite = getCompositeSlide(uBgCurrent, uFgCurrent, coverUvCurrent, vUv);
+            vec4 nextCompositeFinal = getCompositeSlide(uBgNext, uFgNext, coverUvNext, vUv);
 
             if (uProgress <= 0.0001) {
-              gl_FragColor = tex1;
+              gl_FragColor = currentComposite;
               return;
             }
 
             if (uProgress >= 0.9999) {
-              gl_FragColor = tex2Final;
+              gl_FragColor = nextCompositeFinal;
               return;
             }
 
@@ -2347,7 +2568,7 @@
             float sphereMask = 1.0 - smoothstep(radius - edgeSoftness, radius + edgeSoftness, dist);
 
             float outerShadow = mix(1.0 - 0.26 * damp, 1.0, smoothstep(radius, radius + 0.06, dist));
-            vec3 outsideColor = tex1.rgb * outerShadow;
+            vec3 outsideColor = currentComposite.rgb * outerShadow;
 
             if (sphereMask <= 0.0001) {
               gl_FragColor = vec4(outsideColor, 1.0);
@@ -2369,13 +2590,18 @@
             float caAmount = (0.003 + 0.015 * fresnel) * damp;
             vec2 caOffset = (sphereNormal.xy / aspectVec) * caAmount;
 
-            vec2 uvR = safeLensUv(getCoverUv(distortedUv + caOffset, uResolution, uTex2Res));
-            vec2 uvG = safeLensUv(getCoverUv(distortedUv, uResolution, uTex2Res));
-            vec2 uvB = safeLensUv(getCoverUv(distortedUv - caOffset, uResolution, uTex2Res));
+            // Sample 3-Layer Composite (BG + Marquee Text + FG Cutout) 3 times for R, G, B Chromatic Aberration
+            vec2 distortedScreenUvR = safeLensUv(distortedUv + caOffset);
+            vec2 distortedScreenUvG = safeLensUv(distortedUv);
+            vec2 distortedScreenUvB = safeLensUv(distortedUv - caOffset);
 
-            float colR = texture2D(uTexture2, uvR).r;
-            float colG = texture2D(uTexture2, uvG).g;
-            float colB = texture2D(uTexture2, uvB).b;
+            vec2 distortedCoverUvR = safeLensUv(getCoverUv(distortedUv + caOffset, uResolution, uTexNextRes));
+            vec2 distortedCoverUvG = safeLensUv(getCoverUv(distortedUv, uResolution, uTexNextRes));
+            vec2 distortedCoverUvB = safeLensUv(getCoverUv(distortedUv - caOffset, uResolution, uTexNextRes));
+
+            float colR = getCompositeSlide(uBgNext, uFgNext, distortedCoverUvR, distortedScreenUvR).r;
+            float colG = getCompositeSlide(uBgNext, uFgNext, distortedCoverUvG, distortedScreenUvG).g;
+            float colB = getCompositeSlide(uBgNext, uFgNext, distortedCoverUvB, distortedScreenUvB).b;
             vec3 lensColor = vec3(colR, colG, colB);
 
             float innerDarkVignette = mix(1.0, 0.62, pow(r, 3.6) * damp);
@@ -2393,16 +2619,22 @@
           {
             index: 0,
             pageNumber: '01',
-            title: 'Lumina Slider',
+            title: 'M. RIKI ADETIYA',
             description: 'A soft, radiant light that illuminates the soul.',
-            defaultSrc: './slide1.jpg',
+            defaultBgSrc: './slide1.jpg',
+            fallbackBgSrc: '/assets/aistudio/slide1_88053a3e.jpg',
+            defaultFgSrc: './slide1-removebg-preview.png',
+            fallbackFgSrc: '/assets/aistudio/slide1-removebg-preview_962ed836.png',
           },
           {
             index: 1,
             pageNumber: '02',
-            title: 'Rose Mirage',
+            title: 'M. RIKI ADETIYA',
             description: 'Lost in a desert of blooming dreams and endless horizons.',
-            defaultSrc: './slide2.jpg',
+            defaultBgSrc: './slide2.jpg',
+            fallbackBgSrc: '/assets/aistudio/slide2_4fcd6048.PNG',
+            defaultFgSrc: './slide2-removebg-preview.png',
+            fallbackFgSrc: '/assets/aistudio/slide2-removebg-preview_44f9e56f.png',
           },
         ];
 
@@ -2422,18 +2654,78 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
-        function createFallbackTexture(slideIdx) {
+        // ============================================================================
+        // OFFSCREEN 2D CANVASTEXTURE FOR INFINITE MARQUEE TEXT (uTextTex, 2048x1024)
+        // ============================================================================
+        const textCanvas = document.createElement('canvas');
+        textCanvas.width = 2048;
+        textCanvas.height = 1024;
+        const textCtx = textCanvas.getContext('2d');
+
+        const textTexture = new THREE.CanvasTexture(textCanvas);
+        textTexture.minFilter = THREE.LinearFilter;
+        textTexture.magFilter = THREE.LinearFilter;
+        textTexture.wrapS = THREE.ClampToEdgeWrapping;
+        textTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+        const MARQUEE_UNIT = 'RIKI DEVELOPER   ';
+        let marqueeScrollX = 0;
+
+        function updateMarqueeCanvasTexture() {
+          const w = textCanvas.width;
+          const h = textCanvas.height;
+          textCtx.clearRect(0, 0, w, h);
+
+          textCtx.save();
+          // Compensate canvas aspect (2048:1024 = 2:1) vs screen aspect so giant letters keep exact proportions
+          const screenAspect =
+            window.innerWidth / Math.max(window.innerHeight, 1);
+          const canvasAspect = w / h;
+          const scaleX = canvasAspect / screenAspect;
+          textCtx.scale(scaleX, 1);
+
+          // Vertical center of the 2048x1024 offscreen canvas (~47% from top, matching previous giant marquee)
+          const centerY = h * 0.51;
+          textCtx.font = '800 370px "Helvetica Neue", Arial, sans-serif';
+          textCtx.textBaseline = 'middle';
+          textCtx.lineJoin = 'round';
+          textCtx.lineCap = 'round';
+
+          const unitWidth = textCtx.measureText(MARQUEE_UNIT).width || 3200;
+          marqueeScrollX -= 3.6;
+          if (marqueeScrollX <= -unitWidth) {
+            marqueeScrollX += unitWidth;
+          }
+
+          // Subtle translucent fill + crisp white outline stroke matching previous RIKI DEVELOPER style
+          textCtx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+          textCtx.strokeStyle = 'rgba(255, 255, 255, 0.78)';
+          textCtx.lineWidth = 3.2;
+
+          const effectiveWidth = w / scaleX;
+          let drawX = marqueeScrollX;
+          while (drawX < effectiveWidth + unitWidth) {
+            textCtx.fillText(MARQUEE_UNIT, drawX, centerY);
+            textCtx.strokeText(MARQUEE_UNIT, drawX, centerY);
+            drawX += unitWidth;
+          }
+
+          textCtx.restore();
+          textTexture.needsUpdate = true;
+        }
+
+        function createFallbackBgTexture(slideIdx) {
           const c = document.createElement('canvas');
           c.width = 1920;
           c.height = 1080;
           const ctx = c.getContext('2d');
           const grad = ctx.createRadialGradient(960, 520, 100, 960, 540, 1100);
           if (slideIdx === 0) {
-            grad.addColorStop(0, '#585c62');
-            grad.addColorStop(1, '#121417');
-          } else {
             grad.addColorStop(0, '#2a41b8');
             grad.addColorStop(1, '#050926');
+          } else {
+            grad.addColorStop(0, '#585c62');
+            grad.addColorStop(1, '#121417');
           }
           ctx.fillStyle = grad;
           ctx.fillRect(0, 0, 1920, 1080);
@@ -2446,20 +2738,36 @@
           return tex;
         }
 
-        const slideTextures = [createFallbackTexture(0), createFallbackTexture(1)];
+        function createFallbackFgTexture() {
+          const c = document.createElement('canvas');
+          c.width = 4;
+          c.height = 4;
+          const tex = new THREE.CanvasTexture(c);
+          tex.minFilter = THREE.LinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          tex.wrapS = THREE.ClampToEdgeWrapping;
+          tex.wrapT = THREE.ClampToEdgeWrapping;
+          return tex;
+        }
+
+        const slideBgTextures = [createFallbackBgTexture(0), createFallbackBgTexture(1)];
+        const slideFgTextures = [createFallbackFgTexture(), createFallbackFgTexture()];
         const slideResolutions = [
           new THREE.Vector2(1920, 1080),
           new THREE.Vector2(1920, 1080),
         ];
 
         const uniforms = {
-          uTexture1: { value: slideTextures[0] },
-          uTexture2: { value: slideTextures[1] },
+          uBgCurrent: { value: slideBgTextures[0] },
+          uFgCurrent: { value: slideFgTextures[0] },
+          uBgNext: { value: slideBgTextures[1] },
+          uFgNext: { value: slideFgTextures[1] },
+          uTextTex: { value: textTexture },
           uResolution: {
             value: new THREE.Vector2(window.innerWidth, window.innerHeight),
           },
-          uTex1Res: { value: slideResolutions[0].clone() },
-          uTex2Res: { value: slideResolutions[1].clone() },
+          uTexCurrentRes: { value: slideResolutions[0].clone() },
+          uTexNextRes: { value: slideResolutions[1].clone() },
           uProgress: { value: 0.0 },
         };
 
@@ -2479,17 +2787,19 @@
 
         function syncShaderTextures() {
           const nextIndex = (currentSlideIndex + 1) % SLIDES.length;
-          uniforms.uTexture1.value = slideTextures[currentSlideIndex];
-          uniforms.uTexture2.value = slideTextures[nextIndex];
-          uniforms.uTex1Res.value.copy(slideResolutions[currentSlideIndex]);
-          uniforms.uTex2Res.value.copy(slideResolutions[nextIndex]);
+          uniforms.uBgCurrent.value = slideBgTextures[currentSlideIndex];
+          uniforms.uFgCurrent.value = slideFgTextures[currentSlideIndex];
+          uniforms.uBgNext.value = slideBgTextures[nextIndex];
+          uniforms.uFgNext.value = slideFgTextures[nextIndex];
+          uniforms.uTexCurrentRes.value.copy(slideResolutions[currentSlideIndex]);
+          uniforms.uTexNextRes.value.copy(slideResolutions[nextIndex]);
           renderScene();
         }
 
         const textureLoader = new THREE.TextureLoader();
         textureLoader.setCrossOrigin('anonymous');
 
-        function loadSlideTexture(slotIndex, url, labelName) {
+        function loadSlideBgTexture(slotIndex, url, labelName, fallbackUrl) {
           textureLoader.load(
             url,
             function (tex) {
@@ -2504,11 +2814,11 @@
               const imgH =
                 tex.image && tex.image.naturalHeight ? tex.image.naturalHeight : 1080;
 
-              slideTextures[slotIndex] = tex;
+              slideBgTextures[slotIndex] = tex;
               slideResolutions[slotIndex].set(imgW, imgH);
 
               const metaEl = document.getElementById(
-                slotIndex === 0 ? 'slot-1-name' : 'slot-2-name'
+                slotIndex === 0 ? 'slot-bg-1-name' : 'slot-bg-2-name'
               );
               if (metaEl && labelName) {
                 metaEl.textContent =
@@ -2519,13 +2829,85 @@
             },
             undefined,
             function () {
-              syncShaderTextures();
+              if (fallbackUrl && url !== fallbackUrl) {
+                loadSlideBgTexture(slotIndex, fallbackUrl, labelName, null);
+              } else {
+                syncShaderTextures();
+              }
             }
           );
         }
 
-        loadSlideTexture(0, SLIDES[0].defaultSrc, './slide1.jpg');
-        loadSlideTexture(1, SLIDES[1].defaultSrc, './slide2.jpg');
+        function loadSlideFgTexture(slotIndex, url, labelName, fallbackUrl) {
+          textureLoader.load(
+            url,
+            function (tex) {
+              tex.minFilter = THREE.LinearFilter;
+              tex.magFilter = THREE.LinearFilter;
+              tex.wrapS = THREE.ClampToEdgeWrapping;
+              tex.wrapT = THREE.ClampToEdgeWrapping;
+              tex.needsUpdate = true;
+
+              const imgW =
+                tex.image && tex.image.naturalWidth ? tex.image.naturalWidth : 669;
+              const imgH =
+                tex.image && tex.image.naturalHeight ? tex.image.naturalHeight : 373;
+
+              slideFgTextures[slotIndex] = tex;
+
+              const metaEl = document.getElementById(
+                slotIndex === 0 ? 'slot-fg-1-name' : 'slot-fg-2-name'
+              );
+              if (metaEl && labelName) {
+                metaEl.textContent =
+                  labelName + ' (' + imgW + '×' + imgH + ')';
+              }
+
+              syncShaderTextures();
+            },
+            undefined,
+            function () {
+              if (fallbackUrl && url !== fallbackUrl) {
+                loadSlideFgTexture(slotIndex, fallbackUrl, labelName, null);
+              } else {
+                syncShaderTextures();
+              }
+            }
+          );
+        }
+
+        loadSlideBgTexture(
+          0,
+          SLIDES[0].defaultBgSrc,
+          './slide1.jpg',
+          SLIDES[0].fallbackBgSrc
+        );
+        loadSlideFgTexture(
+          0,
+          SLIDES[0].defaultFgSrc,
+          './slide1-removebg-preview.png',
+          SLIDES[0].fallbackFgSrc
+        );
+        loadSlideBgTexture(
+          1,
+          SLIDES[1].defaultBgSrc,
+          './slide2.jpg',
+          SLIDES[1].fallbackBgSrc
+        );
+        loadSlideFgTexture(
+          1,
+          SLIDES[1].defaultFgSrc,
+          './slide2-removebg-preview.png',
+          SLIDES[1].fallbackFgSrc
+        );
+
+        // Continuous requestAnimationFrame loop for Dynamic CanvasTexture Marquee (uTextTex) + WebGL render
+        function animateLuminaMarqueeLoop() {
+          updateMarqueeCanvasTexture();
+          renderScene();
+          requestAnimationFrame(animateLuminaMarqueeLoop);
+        }
+        requestAnimationFrame(animateLuminaMarqueeLoop);
 
         const slideContentEl = document.getElementById('slide-content');
         const slideTitleEl = document.getElementById('slide-title');
@@ -2542,10 +2924,12 @@
           const nextIndex = (currentSlideIndex + 1) % SLIDES.length;
           const nextSlide = SLIDES[nextIndex];
 
-          uniforms.uTexture1.value = slideTextures[currentSlideIndex];
-          uniforms.uTexture2.value = slideTextures[nextIndex];
-          uniforms.uTex1Res.value.copy(slideResolutions[currentSlideIndex]);
-          uniforms.uTex2Res.value.copy(slideResolutions[nextIndex]);
+          uniforms.uBgCurrent.value = slideBgTextures[currentSlideIndex];
+          uniforms.uFgCurrent.value = slideFgTextures[currentSlideIndex];
+          uniforms.uBgNext.value = slideBgTextures[nextIndex];
+          uniforms.uFgNext.value = slideFgTextures[nextIndex];
+          uniforms.uTexCurrentRes.value.copy(slideResolutions[currentSlideIndex]);
+          uniforms.uTexNextRes.value.copy(slideResolutions[nextIndex]);
           uniforms.uProgress.value = 0.0;
 
           const tl = gsap.timeline({
@@ -2782,7 +3166,7 @@
 
         window.addEventListener('resize', handleResize);
 
-        // Top-right local slide uploader for Section 2
+        // Top-right 4-slot local slide uploader for Section 2 (BG 1, FG 1, BG 2, FG 2)
         const toolsTrigger = document.getElementById('tools-trigger');
         const toolsPanel = document.getElementById('tools-panel');
 
@@ -2792,19 +3176,28 @@
           toolsTrigger.setAttribute('aria-expanded', String(isOpen));
         });
 
-        function handleLocalFile(slotIndex, file) {
+        function handleLocalFile(slotIndex, isForeground, file) {
           if (!file || !file.type.startsWith('image/')) return;
           const objectUrl = URL.createObjectURL(file);
-          loadSlideTexture(slotIndex, objectUrl, file.name);
+          if (isForeground) {
+            loadSlideFgTexture(slotIndex, objectUrl, file.name, null);
+          } else {
+            loadSlideBgTexture(slotIndex, objectUrl, file.name, null);
+          }
         }
 
-        ['1', '2'].forEach(function (num, idx) {
-          const inputEl = document.getElementById('file-input-' + num);
-          const slotEl = document.getElementById('drop-slot-' + num);
+        [
+          { inputId: 'file-input-bg-1', slotId: 'drop-slot-bg-1', idx: 0, isFg: false },
+          { inputId: 'file-input-fg-1', slotId: 'drop-slot-fg-1', idx: 0, isFg: true },
+          { inputId: 'file-input-bg-2', slotId: 'drop-slot-bg-2', idx: 1, isFg: false },
+          { inputId: 'file-input-fg-2', slotId: 'drop-slot-fg-2', idx: 1, isFg: true },
+        ].forEach(function (cfg) {
+          const inputEl = document.getElementById(cfg.inputId);
+          const slotEl = document.getElementById(cfg.slotId);
 
           inputEl.addEventListener('change', function (e) {
             if (e.target.files && e.target.files[0]) {
-              handleLocalFile(idx, e.target.files[0]);
+              handleLocalFile(cfg.idx, cfg.isFg, e.target.files[0]);
             }
           });
 
@@ -2821,7 +3214,7 @@
             e.preventDefault();
             slotEl.classList.remove('dragover');
             if (e.dataTransfer && e.dataTransfer.files[0]) {
-              handleLocalFile(idx, e.dataTransfer.files[0]);
+              handleLocalFile(cfg.idx, cfg.isFg, e.dataTransfer.files[0]);
             }
           });
         });
@@ -2830,9 +3223,13 @@
           .getElementById('swap-slides-btn')
           .addEventListener('click', function (e) {
             e.stopPropagation();
-            const tempTex = slideTextures[0];
-            slideTextures[0] = slideTextures[1];
-            slideTextures[1] = tempTex;
+            const tempBg = slideBgTextures[0];
+            slideBgTextures[0] = slideBgTextures[1];
+            slideBgTextures[1] = tempBg;
+
+            const tempFg = slideFgTextures[0];
+            slideFgTextures[0] = slideFgTextures[1];
+            slideFgTextures[1] = tempFg;
 
             const tempRes = slideResolutions[0].clone();
             slideResolutions[0].copy(slideResolutions[1]);
@@ -2845,8 +3242,30 @@
           .getElementById('reset-slides-btn')
           .addEventListener('click', function (e) {
             e.stopPropagation();
-            loadSlideTexture(0, SLIDES[0].defaultSrc, './slide1.jpg');
-            loadSlideTexture(1, SLIDES[1].defaultSrc, './slide2.jpg');
+            loadSlideBgTexture(
+              0,
+              SLIDES[0].defaultBgSrc,
+              './slide1.jpg',
+              SLIDES[0].fallbackBgSrc
+            );
+            loadSlideFgTexture(
+              0,
+              SLIDES[0].defaultFgSrc,
+              './slide1-removebg-preview.png',
+              SLIDES[0].fallbackFgSrc
+            );
+            loadSlideBgTexture(
+              1,
+              SLIDES[1].defaultBgSrc,
+              './slide2.jpg',
+              SLIDES[1].fallbackBgSrc
+            );
+            loadSlideFgTexture(
+              1,
+              SLIDES[1].defaultFgSrc,
+              './slide2-removebg-preview.png',
+              SLIDES[1].fallbackFgSrc
+            );
           });
 
         renderScene();
